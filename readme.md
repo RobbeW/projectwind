@@ -28,7 +28,7 @@ De Monitor Windmolengenerator bestaat uit:
 
 - **Webinterface**:
   - **HTML/CSS/JS** met Tailwind CSS en Chart.js voor real-time plotting van spanning en stroom.
-  - Een geanimeerde iPhone-mockup (uit eerder project) die visueel laat zien hoe snel een iPhone-batterij (3 361 mAh) geladen zou worden.
+  - Een geanimeerde iPhone-mockup die visueel laat zien hoe snel een iPhone-batterij (3 361 mAh) geladen zou worden.
   - Overlays voor het tonen van het circuitschema en duidelijke instructies.
   - PDF-rapportage (jsPDF & AutoTable) met 1 meetpunt per seconde en samenvattingen.
 
