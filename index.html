@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monitor Windmolengenerator</title>
+  <!-- © 2025 Robbe Wulgaert · AI in de Klas -->
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <!-- Eigen CSS -->
+  <link rel="stylesheet" href="style.css" />
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <!-- jsPDF & AutoTable -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.25/dist/jspdf.plugin.autotable.min.js" defer></script>
+  <!-- Applicatie Script -->
+  <script src="script.js" defer></script>
+</head>
+<body class="flex flex-col min-h-screen bg-gray-50 font-sans text-gray-900">
+  <!-- Header -->
+  <header class="bg-indigo-600 text-white px-6 py-4 flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Windmolengenerator Monitor</h1>
+  </header>
+  <!-- Controls + Hulpmiddelen -->
+  <div class="flex flex-wrap gap-4 px-6 py-4">
+    <button id="btn-connect" class="flex-1 bg-indigo-600 text-white font-semibold py-2 rounded-lg hover:bg-indigo-700 transition">Verbind met micro:bit</button>
+    <button id="btn-start"   class="flex-1 bg-green-500  text-white font-semibold py-2 rounded-lg hover:bg-green-600 transition">Start meting</button>
+    <button id="btn-stop"    disabled class="flex-1 bg-gray-300 text-gray-600 font-semibold py-2 rounded-lg cursor-not-allowed">Stop meting</button>
+    <button id="btn-report"  class="flex-1 bg-indigo-600 text-white font-semibold py-2 rounded-lg hover:bg-indigo-700 transition">Genereer PDF</button>
+    <button id="btn-schema"  class="flex-1 bg-yellow-500 text-white font-semibold py-2 rounded-lg hover:bg-yellow-600 transition">Toon schema</button>
+  </div>
+  <!-- Data Display -->
+  <div class="px-6 py-2 grid grid-cols-2 gap-4">
+    <div class="p-4 bg-white shadow rounded-lg">
+      <p class="text-sm font-medium">Spanning (V)</p>
+      <p id="voltage" class="text-3xl font-bold">--</p>
+    </div>
+    <div class="p-4 bg-white shadow rounded-lg">
+      <p class="text-sm font-medium">Stroom (A)</p>
+      <p id="current" class="text-3xl font-bold">--</p>
+    </div>
+  </div>
+  <!-- Responsive layout: grafiek en iPhone -->
+  <div class="px-6 py-4 flex flex-col md:flex-row md:space-x-6">
+    <!-- Grafiek 70% -->
+    <div class="md:w-[70%]">
+      <canvas id="chart" class="w-full h-64 md:h-96 bg-white shadow rounded-lg"></canvas>
+    </div>
+    <!-- iPhone Mock-up 30% -->
+    <div class="md:w-[30%] mt-6 md:mt-0 flex justify-center">
+      <div class="iphone-mockup w-48 h-96 bg-gray-200 rounded-3xl shadow-inner flex flex-col items-center justify-center relative overflow-hidden">
+        <div class="battery-outline w-10 h-48 bg-white border-2 border-gray-700 relative">
+          <div class="battery-tip w-4 h-2 bg-gray-700 absolute -top-2 left-1/2 transform -translate-x-1/2"></div>
+          <div class="battery-level bg-green-500 w-full h-0 origin-bottom transition-all duration-1000"></div>
+        </div>
+        <div class="mt-4 text-center">
+          <p id="charge-percent" class="text-lg font-semibold text-gray-800">0%</p>
+          <p id="time-remaining" class="text-sm text-gray-600">-- uur resterend</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Help-knop -->
+  <button id="btn-help" class="fixed bottom-6 right-6 bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg hover:bg-blue-700 transition">?</button>
+  <!-- Schema Overlay -->
+  <div id="overlay-schema" class="overlay fixed inset-0 bg-black bg-opacity-75 hidden flex items-center justify-center z-50">
+    <div class="relative bg-white p-4 rounded-lg max-w-3xl w-full">
+      <button id="btn-close-schema" class="absolute top-2 right-2 text-gray-700 hover:text-gray-900">✕</button>
+      <img src="media/schema_tinkercad.png" alt="Circuit schema" class="w-full h-auto" />
+    </div>
+  </div>
+  <!-- Help Overlay -->
+  <div id="overlay-help" class="overlay fixed inset-0 bg-black bg-opacity-75 hidden flex items-center justify-center z-50">
+    <div class="relative bg-white p-6 rounded-lg max-w-2xl w-full text-gray-800">
+      <button id="btn-close-help" class="absolute top-2 right-2 text-gray-700 hover:text-gray-900">✕</button>
+      <h2 class="text-xl font-bold mb-4">Instructies Experiment</h2>
+      <ol class="list-decimal list-inside space-y-2">
+        <li>Verbind de micro:bit met de USB-poort van de computer (baudrate 115200).</li>
+        <li>Verbind de DC-motor (generator) met pin P0 en GND van de micro:bit.</li>
+        <li>Sluit een 100 Ω weerstand aan: de ene kant aan pin P1 en de andere kant aan GND.</li>
+        <li>Open de webapp en klik op “Verbind met micro:bit”.</li>
+        <li>Klik op “Start meting” en bekijk de live grafiek en de batterij-animatie.</li>
+        <li>Let op: de app gebruikt timestamp, spanning (V) en stroom (A) voor berekeningen.</li>
+        <li>Klik op “Genereer PDF” om een rapport te downloaden met meetgegevens (1 datapunt/s).</li>
+        <li>Dien het rapport in bij de docent.</li>
+      </ol>
+    </div>
+  </div>
+  <!-- Rapport Modal -->
+  <div id="report-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
+    <form id="report-form" class="bg-white rounded-xl p-6 w-11/12 max-w-lg">
+      <h2 class="text-xl font-bold mb-4">Rapportinstellingen</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium">Aantal studenten</label>
+          <input type="number" id="input-count" min="1" value="1" class="mt-1 w-full border rounded-lg p-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Studentennamen</label>
+          <input type="text" id="input-names" placeholder="Robbe Wulgaert, Cédric Bracke ..." class="mt-1 w-full border rounded-lg p-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Onderzoeksvraag</label>
+          <textarea id="input-question" rows="2" class="mt-1 w-full border rounded-lg p-2"></textarea>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end space-x-3">
+        <button type="button" id="btn-cancel" class="px-4 py-2 bg-gray-200 rounded-lg">Annuleer</button>
+        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg">Genereer PDF</button>
+      </div>
+    </form>
+  </div>
+  <!-- Footer -->
+  <footer class="bg-gray-100 text-center py-4">
+    <p class="text-sm text-gray-600">© 2025 Robbe Wulgaert · AI in de Klas</p>
+  </footer>
+</body>
+</html>
