@@ -1,4 +1,4 @@
-````markdown
+
 # Monitor Windmolengenerator
 
 **© 2025 Robbe Wulgaert · AI in de Klas**
@@ -63,11 +63,7 @@ De Monitor Windmolengenerator bestaat uit:
 
 
 ## Installatie en gebruik
-1. **Clone** de repository:
-   ```bash
-   git clone https://github.com/RobbeW/projectwind.git
-````
-
+1. **Clone** de repository: ```git clone https://github.com/RobbeW/projectwind.git```
 2. **Plaats** `wind_turbine.py` op de micro\:bit (bijv. via Mu-editor).
 3. **Open** `index.html` in een moderne Chrome- of Edge-browser (HTTPS of `localhost`). Of klik [hier](https://robbew.github.io/projectwind)
 4. Klik op **Verbind met micro\:bit**, **Start meting**, en bekijk de live grafiek en batterijanimatie.
@@ -94,5 +90,4 @@ Dit project valt onder de **MIT License**.
 
 *Voor onderwijsdoeleinden ontwikkeld door Robbe Wulgaert - AI in de Klas (Sint‑Lievenscollege Gent, Universiteit Antwerpen). Neem bij vragen contact op via [robbe.wulgaert@sintlievenscollege.be](mailto:robbe.wulgaert@sintlievenscollege.be).*
 
-```
-```
+
