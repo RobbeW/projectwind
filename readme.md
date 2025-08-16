@@ -5,6 +5,8 @@
 
 Deze webapplicatie stelt leerlingen (13–14 jaar) in staat om op een interactieve manier de spanning, stroom en geproduceerde energie van een zelfgebouwde windmolengenerator te meten en analyseren met behulp van een BBC micro:bit.
 
+De tool is uit te testen [via deze link.](https://robbew.github.io/projectwind/) 
+
 ---
 
 ## Inhoud
@@ -89,5 +91,6 @@ Dit project valt onder de **MIT License**.
 ---
 
 *Voor onderwijsdoeleinden ontwikkeld door Robbe Wulgaert - AI in de Klas (Sint‑Lievenscollege Gent, Universiteit Antwerpen). Neem bij vragen contact op via [robbe.wulgaert@sintlievenscollege.be](mailto:robbe.wulgaert@sintlievenscollege.be).*
+
 
 
