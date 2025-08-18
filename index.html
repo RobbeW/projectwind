@@ -155,42 +155,70 @@
   </footer>
 
   <script>
+/* ===== NL: Thema-besturing (donker/licht) + Chart.js themakoppeling (veilig, geen in-place mutaties) ===== */
 (function(){
   const THEME_KEY = 'windgen-theme';
   const btn = document.getElementById('btn-theme');
 
-  // Chart.js instance opslag (optioneel; roep __setChartRef(chart) aan in je script.js)
   let chartRef = null;
+
+  // Koppelpunt dat je in script.js aanroept: window.__setChartRef(chart)
   window.__setChartRef = function(chartInstance){
     chartRef = chartInstance;
-    applyChartTheme(document.body.classList.contains('dark'));
+    applyChartTheme(document.body.classList.contains('dark'), /*init*/ true);
   };
 
-  // Pas Chart.js kleuren aan huidige thema aan
-  function applyChartTheme(isDark){
+  function cssVar(name, fallback){
+    const v = getComputedStyle(document.body).getPropertyValue(name).trim();
+    return v || fallback;
+  }
+
+  // Bouw nieuwe opties-structuur en vervang deze (geen in-place wijzigingen)
+  function applyChartTheme(isDark, init = false){
     if(!chartRef) return;
-    const cs   = getComputedStyle(document.body);
-    const grid = cs.getPropertyValue('--chart-grid').trim()  || '#d1d5db';
-    const labl = cs.getPropertyValue('--chart-label').trim() || '#111827';
+    const grid = cssVar('--chart-grid',  '#d1d5db');
+    const labl = cssVar('--chart-label', '#111827');
 
-    // ===== NL: assen, grid en ticks =====
-    const sc = chartRef.options.scales || {};
-    ['x','y'].forEach(axis=>{
-      if(!sc[axis]) sc[axis] = {};
-      if(!sc[axis].grid)  sc[axis].grid  = {};
-      if(!sc[axis].ticks) sc[axis].ticks = {};
-      sc[axis].grid.color  = grid;
-      sc[axis].ticks.color = labl;
-    });
+    const oldOpts = chartRef.options || {};
+    const oldSc   = oldOpts.scales || {};
+    const oldX    = oldSc.x || {};
+    const oldY    = oldSc.y || {};
+    const oldY1   = oldSc.y1 || {};
 
-    // ===== NL: legenda labels =====
-    chartRef.options.plugins = chartRef.options.plugins || {};
-    chartRef.options.plugins.legend = chartRef.options.plugins.legend || {};
-    chartRef.options.plugins.legend.labels = chartRef.options.plugins.legend.labels || {};
-    chartRef.options.plugins.legend.labels.color = labl;
+    const newOptions = {
+      ...oldOpts,
+      scales: {
+        ...oldSc,
+        x: {
+          ...oldX,
+          grid:  { ...(oldX.grid  || {}), color: grid },
+          ticks: { ...(oldX.ticks || {}), color: labl },
+        },
+        y: {
+          ...oldY,
+          grid:  { ...(oldY.grid  || {}), color: grid },
+          ticks: { ...(oldY.ticks || {}), color: labl },
+        },
+        y1: {
+          ...oldY1,
+          grid:  { ...(oldY1.grid  || {}), color: (oldY1.grid?.drawOnChartArea === false ? grid : grid) },
+          ticks: { ...(oldY1.ticks || {}), color: labl },
+        }
+      },
+      plugins: {
+        ...(oldOpts.plugins || {}),
+        legend: {
+          ...((oldOpts.plugins||{}).legend || {}),
+          labels: {
+            ...(((oldOpts.plugins||{}).legend||{}).labels || {}),
+            color: labl
+          }
+        }
+      }
+    };
 
-    // (Tooltips laten we standaard; Chart.js past die vaak automatisch aan)
-    chartRef.update('none');
+    chartRef.options = newOptions;
+    chartRef.update(init ? undefined : 'none');
     console.log('🎨 (Thema) Chart.js stijl toegepast voor', isDark ? 'donker' : 'licht');
   }
 
@@ -223,8 +251,10 @@
 })();
 </script>
 
+
 </body>
 </html>
+
 
 
 
