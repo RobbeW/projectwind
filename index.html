@@ -21,12 +21,44 @@
   <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.25/dist/jspdf.plugin.autotable.min.js" defer></script>
   <!-- Applicatie Script -->
   <script src="script.js" defer></script>
+  <style>
+  :root{
+    --bg:      #f9fafb;     /* grijs-50 */
+    --text:    #111827;     /* grijs-900 */
+    --surface: #ffffff;     /* panelen/canvas/modals */
+    --border:  #e5e7eb;     /* grijs-200 */
+
+    /* Chart.js raster/labels */
+    --chart-grid:  #d1d5db; /* grijs-300 */
+    --chart-label: #111827; /* grijs-900 */
+  }
+  body.dark{
+    --bg:      #161820;     /* donker basis */
+    --text:    #ffffff;     /* lichte tekst */
+    --surface: #23272e;     /* donkere panelen */
+    --border:  #3a3f4a;     /* donkere randen */
+
+    --chart-grid:  #3a3f4a;
+    --chart-label: #e7e7e7;
+  }
+
+  /* NL: Basis op variabelen mappen (overrulet Tailwind body-classes) */
+  body{ background: var(--bg); color: var(--text); }
+</style>
+
 </head>
 <body class="flex flex-col min-h-screen bg-gray-50 font-sans text-gray-900">
   <!-- Header -->
-  <header class="bg-indigo-600 text-white px-6 py-4 flex justify-between items-center">
-    <h1 class="text-2xl font-bold">Windmolengenerator Monitor</h1>
-  </header>
+<!-- Header -->
+<header class="bg-indigo-600 text-white px-6 py-4 flex justify-between items-center relative">
+  <h1 class="text-2xl font-bold">Windmolengenerator Monitor</h1>
+
+  <!-- NL: Thema-toggle (donker/licht) -->
+  <button id="btn-theme"
+          class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 text-indigo-700 font-bold shadow focus:outline-none focus:ring-2 focus:ring-white/80 active:scale-95 transition"
+          aria-pressed="false" title="Wissel thema">🌙</button>
+</header>
+
   <!-- Controls + Hulpmiddelen -->
   <div class="flex flex-wrap gap-4 px-6 py-4">
     <button id="btn-connect" class="flex-1 bg-indigo-600 text-white font-semibold py-2 rounded-lg hover:bg-indigo-700 transition">Verbind met micro:bit</button>
@@ -37,20 +69,21 @@
   </div>
   <!-- Data Display -->
   <div class="px-6 py-2 grid grid-cols-2 gap-4">
-    <div class="p-4 bg-white shadow rounded-lg">
-      <p class="text-sm font-medium">Spanning (V)</p>
-      <p id="voltage" class="text-3xl font-bold">--</p>
-    </div>
-    <div class="p-4 bg-white shadow rounded-lg">
-      <p class="text-sm font-medium">Stroom (A)</p>
-      <p id="current" class="text-3xl font-bold">--</p>
-    </div>
+<div class="p-4 rounded-lg border bg-[var(--surface)] border-[var(--border)] text-[var(--text)] shadow">
+  <p class="text-sm font-medium">Spanning (V)</p>
+  <p id="voltage" class="text-3xl font-bold">--</p>
+</div>
+
+<div class="p-4 rounded-lg border bg-[var(--surface)] border-[var(--border)] text-[var(--text)] shadow">
+  <p class="text-sm font-medium">Stroom (A)</p>
+  <p id="current" class="text-3xl font-bold">--</p>
+</div>
   </div>
   <!-- Responsive layout: grafiek en iPhone -->
   <div class="px-6 py-4 flex flex-col md:flex-row md:space-x-6">
     <!-- Grafiek 70% -->
     <div class="md:w-[70%]">
-      <canvas id="chart" class="w-full h-64 md:h-96 bg-white shadow rounded-lg"></canvas>
+      <canvas id="chart" class="w-full h-64 md:h-96 bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow"></canvas>
     </div>
     <!-- iPhone Mock-up 30% -->
     <div class="md:w-[30%] mt-6 md:mt-0 flex justify-center">
@@ -70,31 +103,31 @@
   <button id="btn-help" class="fixed bottom-6 right-6 bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg hover:bg-blue-700 transition">?</button>
   <!-- Schema Overlay -->
   <div id="overlay-schema" class="overlay fixed inset-0 bg-black bg-opacity-75 hidden flex items-center justify-center z-50">
-    <div class="relative bg-white p-4 rounded-lg max-w-3xl w-full">
-      <button id="btn-close-schema" class="absolute top-2 right-2 text-gray-700 hover:text-gray-900">✕</button>
-      <img src="media/schema_tinkercad.png" alt="Circuit schema" class="w-full h-auto" />
-    </div>
+<div class="relative bg-[var(--surface)] text-[var(--text)] border border-[var(--border)] p-4 rounded-lg max-w-3xl w-full">
+  <button id="btn-close-schema" class="absolute top-2 right-2 text-[var(--text)]/80 hover:text-[var(--text)]">✕</button>
+  <img src="media/schema_tinkercad.png" alt="Circuit schema" class="w-full h-auto" />
+</div>
   </div>
   <!-- Help Overlay -->
   <div id="overlay-help" class="overlay fixed inset-0 bg-black bg-opacity-75 hidden flex items-center justify-center z-50">
-    <div class="relative bg-white p-6 rounded-lg max-w-2xl w-full text-gray-800">
-      <button id="btn-close-help" class="absolute top-2 right-2 text-gray-700 hover:text-gray-900">✕</button>
-      <h2 class="text-xl font-bold mb-4">Instructies Experiment</h2>
-      <ol class="list-decimal list-inside space-y-2">
-        <li>Verbind de micro:bit met de USB-poort van de computer (baudrate 115200).</li>
-        <li>Verbind de DC-motor (generator) met pin P0 en GND van de micro:bit.</li>
-        <li>Sluit een 100 Ω weerstand aan: de ene kant aan pin P1 en de andere kant aan GND.</li>
-        <li>Open de webapp en klik op “Verbind met micro:bit”.</li>
-        <li>Klik op “Start meting” en bekijk de live grafiek en de batterij-animatie.</li>
-        <li>Let op: de app gebruikt timestamp, spanning (V) en stroom (A) voor berekeningen.</li>
-        <li>Klik op “Genereer PDF” om een rapport te downloaden met meetgegevens (1 datapunt/s).</li>
-        <li>Dien het rapport in bij de docent.</li>
-      </ol>
-    </div>
+    <div class="relative bg-[var(--surface)] text-[var(--text)] border border-[var(--border)] p-6 rounded-lg max-w-2xl w-full">
+  <button id="btn-close-help" class="absolute top-2 right-2 text-[var(--text)]/80 hover:text-[var(--text)]">✕</button>
+  <h2 class="text-xl font-bold mb-4">Instructies Experiment</h2>
+  <ol class="list-decimal list-inside space-y-2">
+    <li>Verbind de micro:bit met de USB-poort van de computer (baudrate 115200).</li>
+    <li>Verbind de DC-motor (generator) met pin P0 en GND van de micro:bit.</li>
+    <li>Sluit een 100 Ω weerstand aan: de ene kant aan pin P1 en de andere kant aan GND.</li>
+    <li>Open de webapp en klik op “Verbind met micro:bit”.</li>
+    <li>Klik op “Start meting” en bekijk de live grafiek en de batterij-animatie.</li>
+    <li>Let op: de app gebruikt timestamp, spanning (V) en stroom (A) voor berekeningen.</li>
+    <li>Klik op “Genereer PDF” om een rapport te downloaden met meetgegevens (1 datapunt/s).</li>
+    <li>Dien het rapport in bij de docent.</li>
+  </ol>
+</div>
   </div>
   <!-- Rapport Modal -->
   <div id="report-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
-    <form id="report-form" class="bg-white rounded-xl p-6 w-11/12 max-w-lg">
+    <form id="report-form" class="bg-[var(--surface)] text-[var(--text)] border border-[var(--border)] rounded-xl p-6 w-11/12 max-w-lg">
       <h2 class="text-xl font-bold mb-4">Rapportinstellingen</h2>
       <div class="space-y-4">
         <div>
@@ -118,8 +151,79 @@
   </div>
   <!-- Footer -->
   <footer class="bg-gray-100 text-center py-4">
-    <p class="text-sm text-gray-600">© 2025 Robbe Wulgaert · AI in de Klas</p>
+    <p class="text-sm text-[var(--text)]/80">© 2025 Robbe Wulgaert · AI in de Klas</p>
   </footer>
+
+  <script>
+(function(){
+  const THEME_KEY = 'windgen-theme';
+  const btn = document.getElementById('btn-theme');
+
+  // Chart.js instance opslag (optioneel; roep __setChartRef(chart) aan in je script.js)
+  let chartRef = null;
+  window.__setChartRef = function(chartInstance){
+    chartRef = chartInstance;
+    applyChartTheme(document.body.classList.contains('dark'));
+  };
+
+  // Pas Chart.js kleuren aan huidige thema aan
+  function applyChartTheme(isDark){
+    if(!chartRef) return;
+    const cs   = getComputedStyle(document.body);
+    const grid = cs.getPropertyValue('--chart-grid').trim()  || '#d1d5db';
+    const labl = cs.getPropertyValue('--chart-label').trim() || '#111827';
+
+    // ===== NL: assen, grid en ticks =====
+    const sc = chartRef.options.scales || {};
+    ['x','y'].forEach(axis=>{
+      if(!sc[axis]) sc[axis] = {};
+      if(!sc[axis].grid)  sc[axis].grid  = {};
+      if(!sc[axis].ticks) sc[axis].ticks = {};
+      sc[axis].grid.color  = grid;
+      sc[axis].ticks.color = labl;
+    });
+
+    // ===== NL: legenda labels =====
+    chartRef.options.plugins = chartRef.options.plugins || {};
+    chartRef.options.plugins.legend = chartRef.options.plugins.legend || {};
+    chartRef.options.plugins.legend.labels = chartRef.options.plugins.legend.labels || {};
+    chartRef.options.plugins.legend.labels.color = labl;
+
+    // (Tooltips laten we standaard; Chart.js past die vaak automatisch aan)
+    chartRef.update('none');
+    console.log('🎨 (Thema) Chart.js stijl toegepast voor', isDark ? 'donker' : 'licht');
+  }
+
+  function setTheme(theme){
+    const isDark = theme === 'dark';
+    document.body.classList.toggle('dark', isDark);
+    localStorage.setItem(THEME_KEY, theme);
+    if (btn){
+      btn.setAttribute('aria-pressed', String(isDark));
+      btn.textContent = isDark ? '☀️' : '🌙';
+    }
+    applyChartTheme(isDark);
+    console.log('🌓 (Thema) Ingesteld op:', theme);
+  }
+
+  function getInitialTheme(){
+    const saved = localStorage.getItem(THEME_KEY);
+    // Standaard: licht, tenzij gebruiker reeds koos
+    return (saved === 'dark' || saved === 'light') ? saved : 'light';
+  }
+
+  // Init
+  setTheme(getInitialTheme());
+
+  // Toggleknop
+  btn && btn.addEventListener('click', ()=>{
+    const next = document.body.classList.contains('dark') ? 'light' : 'dark';
+    setTheme(next);
+  });
+})();
+</script>
+
 </body>
 </html>
+
 
