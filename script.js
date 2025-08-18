@@ -57,7 +57,11 @@ window.addEventListener('DOMContentLoaded', () => {
   const batteryWh           = (batteryCapacity_mAh / 1000) * 3.7;
   const maxDataPoints       = 50;
 
-  // ===== Chart.js configuratie (twee Y-assen) =====
+  // ===== Chart.js configuratie (kleur uit CSS-variabelen) =====
+  const cs   = getComputedStyle(document.body);
+  const GRID = (cs.getPropertyValue('--chart-grid')  || '#d1d5db').trim();
+  const LABL = (cs.getPropertyValue('--chart-label') || '#111827').trim();
+
   const chart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -72,33 +76,35 @@ window.addEventListener('DOMContentLoaded', () => {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        x:  { title: { display: true, text: 'Tijd' } },
-        y:  { type: 'linear', position: 'left',  title: { display: true, text: 'Spanning (V)' } },
-        y1: { type: 'linear', position: 'right', title: { display: true, text: 'Stroom (A)' }, grid: { drawOnChartArea: false } }
+        x:  { title: { display: true, text: 'Tijd' }, grid: { color: GRID }, ticks: { color: LABL } },
+        y:  { type: 'linear', position: 'left',  title: { display: true, text: 'Spanning (V)' }, grid: { color: GRID }, ticks: { color: LABL } },
+        y1: { type: 'linear', position: 'right', title: { display: true, text: 'Stroom (A)'   }, grid: { drawOnChartArea: false, color: GRID }, ticks: { color: LABL } }
+      },
+      plugins: {
+        legend: { labels: { color: LABL } }
       }
     }
   });
 
-  // NL: Koppel grafiek aan thematoggle (assen/legenda meekleuren)
+  // NL: koppel grafiek aan thematoggle (die vervangt opties veilig)
   window.__setChartRef && window.__setChartRef(chart);
 
-  // ===== Overlay-knoppen =====
-  btnSchema?.addEventListener('click',       () => overlaySchema.classList.remove('hidden'));
-  btnCloseSchema?.addEventListener('click',  () => overlaySchema.classList.add('hidden'));
-  btnHelp?.addEventListener('click',         () => overlayHelp.classList.remove('hidden'));
-  btnCloseHelp?.addEventListener('click',    () => overlayHelp.classList.add('hidden'));
+  // ===== Overlays =====
+  btnSchema?.addEventListener('click',      () => overlaySchema.classList.remove('hidden'));
+  btnCloseSchema?.addEventListener('click', () => overlaySchema.classList.add('hidden'));
+  btnHelp?.addEventListener('click',        () => overlayHelp.classList.remove('hidden'));
+  btnCloseHelp?.addEventListener('click',   () => overlayHelp.classList.add('hidden'));
 
-  // ===== Verbind met micro:bit =====
+  // ===== Verbinden =====
   btnConnect.addEventListener('click', async () => {
     try {
       port = await navigator.serial.requestPort();
       await port.open({ baudRate: 115200 });
 
-      // UI: connect-knop uitschakelen
       btnConnect.disabled = true;
       btnConnect.classList.add('opacity-50', 'cursor-not-allowed');
 
-      // NL: Reageer op disconnect (kabel uit)
+      // Kabel uit? Herstel UI
       navigator.serial.addEventListener('disconnect', () => {
         console.warn('📴 (Serieel) Verbinding verbroken.');
         try { reader?.cancel(); } catch {}
@@ -115,7 +121,6 @@ window.addEventListener('DOMContentLoaded', () => {
         btnConnect.disabled = false;
         btnConnect.classList.remove('opacity-50', 'cursor-not-allowed');
       });
-
     } catch (err) {
       console.error('Verbindingsfout:', err);
       alert('Verbindingsfout: ' + err);
@@ -127,20 +132,18 @@ window.addEventListener('DOMContentLoaded', () => {
     if (!port) { alert('Verbind eerst met de micro:bit.'); return; }
     if (keepReading) return;
 
-    // NL: (Her)start sessie
     keepReading = true;
     startTime = Date.now();
     endTime = null;
     lastTimestamp = startTime;
     deliveredEnergyWh = 0;
 
-    // UI
     btnStart.disabled = true;
     btnStart.classList.add('opacity-50', 'cursor-not-allowed');
     btnStop.disabled  = false;
     btnStop.classList.remove('opacity-50', 'cursor-not-allowed');
 
-    // NL: Maak een verse reader bij start (betrouwbaar lifecycle-beheer)
+    // Verse reader per sessie
     reader = port.readable
       .pipeThrough(new TextDecoderStream())
       .pipeThrough(new TransformStream(new LineBreakTransformer()))
@@ -169,14 +172,14 @@ window.addEventListener('DOMContentLoaded', () => {
         const now   = Date.now();
         const power = voltage * current;
 
-        // NL: Energie-integratie (Wh) via trapezium benadering met dt
+        // Energie (Wh)
         const dtHr = (now - lastTimestamp) / 3600000;
         deliveredEnergyWh += power * dtHr;
         lastTimestamp = now;
 
         measurementData.push({ timestamp: now, voltage, current, power });
 
-        // ===== UI updates =====
+        // UI
         displayVoltage.textContent = voltage.toFixed(2);
         displayCurrent.textContent = current.toFixed(3);
 
@@ -197,7 +200,7 @@ window.addEventListener('DOMContentLoaded', () => {
         }
         timeRemaining.textContent = remainingText;
 
-        // ===== Grafiek update =====
+        // Grafiek
         const timeLabel = new Date(now).toLocaleTimeString('nl-NL');
         chart.data.labels.push(timeLabel);
         chart.data.datasets[0].data.push(voltage);
@@ -206,7 +209,7 @@ window.addEventListener('DOMContentLoaded', () => {
           chart.data.labels.shift();
           chart.data.datasets.forEach(ds => ds.data.shift());
         }
-        chart.update('none'); // geen animaties, minimale overhead
+        chart.update('none');
 
       } catch (err) {
         console.error('Leesfout:', err);
@@ -214,28 +217,24 @@ window.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // NL: Reader lock vrijgeven als we stoppen
     try { reader?.releaseLock(); } catch {}
   }
 
-  // ===== Stop meten =====
+  // ===== Stop =====
   btnStop.addEventListener('click', async () => {
     keepReading = false;
     endTime = Date.now();
-
-    // NL: Forceer het beëindigen van await reader.read()
     try { await reader?.cancel(); } catch {}
     try { reader?.releaseLock(); } catch {}
     reader = null;
 
-    // UI
     btnStop.disabled  = true;
     btnStop.classList.add('opacity-50', 'cursor-not-allowed');
     btnStart.disabled = false;
     btnStart.classList.remove('opacity-50', 'cursor-not-allowed');
   });
 
-  // ===== Rapportgeneratie met 1 datapunt/s =====
+  // ===== Rapport =====
   btnReport.addEventListener('click', () => reportModal.classList.replace('hidden', 'flex'));
   btnCancel.addEventListener('click', () => reportModal.classList.replace('flex', 'hidden'));
 
@@ -243,7 +242,6 @@ window.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     if (!measurementData.length) { alert('Geen data om te rapporteren.'); return; }
 
-    // NL: Gebruik actuele tijd als meting nog loopt
     const effectiveEnd = endTime ?? Date.now();
     const duration = Math.max(0, Math.round((effectiveEnd - (startTime ?? effectiveEnd)) / 60000));
 
@@ -251,7 +249,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const names    = inputNames.value.trim();
     const question = inputQuestion.value.trim();
 
-    // NL: Downsample → maximaal 1 datapunt per seconde
+    // Downsample: 1 punt/s
     let filteredData = [];
     let lastSec = null;
     measurementData.forEach(d => {
@@ -275,21 +273,18 @@ window.addEventListener('DOMContentLoaded', () => {
     doc.text(`Aantal studenten: ${count}`, 14, 42);
     doc.text(`Studenten: ${names}`, 14, 48);
 
+    let y = 58;
     if (question) {
-      doc.text('Onderzoeksvraag:', 14, 58);
+      doc.text('Onderzoeksvraag:', 14, y);
       const vraag = doc.splitTextToSize(question, 180);
-      doc.text(vraag, 14, 64);
-      var afterVraagY = 64 + vraag.length * 7 + 10;
-    } else {
-      var afterVraagY = 58;
+      y += 6;
+      doc.text(vraag, 14, y);
+      y += vraag.length * 7 + 4;
     }
 
-    let y = afterVraagY;
-    doc.text('Gemiddelden:', 14, y);
-    y += 6;
+    doc.text('Gemiddelden:', 14, y); y += 6;
     [`• Spanning: ${avgV} V`, `• Stroom: ${avgI} A`].forEach(line => { y += 6; doc.text(line, 18, y); });
 
-    // Tweede pagina: ruwe data
     doc.addPage();
     doc.text('Ruwe data', 14, 20);
     doc.autoTable({
