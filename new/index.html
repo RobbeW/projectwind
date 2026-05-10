@@ -1,0 +1,238 @@
+<!doctype html>
+<!--
+  Onderzoekopdracht IW - project wind
+  Copyright (c) 2026 Robbe Wulgaert
+-->
+<html lang="nl-BE">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Onderzoekopdracht IW</title>
+  <meta
+    name="description"
+    content="Onderzoekopdracht IW is een lichte browseromgeving voor een windmolenonderzoek met micro:bit, live metingen en PDF-export, zonder installatie of leerlingenaccounts."
+  />
+  <meta name="author" content="Robbe Wulgaert, AI in de Klas, robbewulgaert.be" />
+  <meta name="copyright" content="Copyright (c) 2026 Robbe Wulgaert" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="landing-page">
+  <a class="skip-link" href="#main">Spring naar inhoud</a>
+
+  <header class="site-header">
+    <nav class="nav" aria-label="Hoofdnavigatie">
+      <a class="brand-link" href="#top" aria-label="Onderzoekopdracht IW">
+        <span class="brand-mark">IW</span>
+        <span class="brand-copy">
+          <span class="brand-title">Onderzoekopdracht IW</span>
+          <span class="brand-subtitle">AI in de Klas · Robbe Wulgaert</span>
+        </span>
+      </a>
+
+      <div class="nav-links" id="navLinks">
+        <a href="#werking">Werking</a>
+        <a href="#leren">Wat leer je?</a>
+        <a href="#leerkrachten">Voor leerkrachten</a>
+        <a href="#privacy">Privacy</a>
+      </div>
+
+      <div class="nav-actions">
+        <a class="btn btn-primary btn-small" href="platform.html">Start onderzoek</a>
+        <button class="menu-button" id="menuButton" type="button" aria-expanded="false" aria-controls="navLinks">
+          Menu
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="landing-hero" id="top" aria-label="Onderzoekopdracht IW">
+      <div class="hero-content">
+        <p class="section-kicker">Project Wind J2</p>
+        <h1>Onderzoek energie met je eigen windmolen.</h1>
+        <p class="hero-lead">
+          Bouw, meet en vergelijk. Leerlingen leren hoe een windmolen elektrische energie opwekt
+          en gebruiken de micro:bit om spanning, stroom, vermogen en energie te onderzoeken.
+        </p>
+        <div class="hero-actions" aria-label="Belangrijke acties">
+          <a class="btn btn-primary" href="platform.html">Start onderzoeksplatform</a>
+          <a class="btn btn-secondary" href="#werking">Bekijk de opdracht</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section landing-intro" id="werking">
+      <p class="section-kicker">Hoe werkt het?</p>
+      <h2 class="section-title">Bouw een molen en genereer zelf energie</h2>
+      <p class="section-lead">
+        De opdracht begeleidt leerlingen door dezelfde stappen als een klein onderzoek: voorspellen,
+        bouwen, kalibreren, meten, vergelijken en besluiten. De app draait als gewone website en werkt
+        met WebSerial in Chrome of Edge. Geen installatie, geen leerlingenaccounts.
+      </p>
+
+      <div class="steps">
+        <article class="step-card">
+          <div class="step-number">1</div>
+          <h3 class="card-title">Voorspel</h3>
+          <p class="card-copy">
+            Leerlingen formuleren een onderzoeksvraag en een hypothese. 
+          </p>
+        </article>
+        <article class="step-card">
+          <div class="step-number">2</div>
+          <h3 class="card-title">Meet</h3>
+          <p class="card-copy">
+            De micro:bit stuurt live data naar de browser. De app toont spanning, stroom, vermogen en energie.
+          </p>
+        </article>
+        <article class="step-card">
+          <div class="step-number">3</div>
+          <h3 class="card-title">Vergelijk</h3>
+          <p class="card-copy">
+            Meerdere proeven komen samen in één grafiek en in een PDF-rapport dat leerlingen kunnen indienen.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section media-section" aria-label="Opstelling">
+      <div class="split">
+        <article class="audience-card">
+          <p class="section-kicker">De opstelling</p>
+          <h2 class="section-title">Een concrete brug tussen techniek en data.</h2>
+          <p class="section-lead">
+            De windmolen wordt een generator. De micro:bit leest de spanning en stroom uit, waarna de
+            browser berekent hoeveel vermogen en energie de opstelling oplevert.
+          </p>
+          <ul class="bullet-list">
+            <li>Werkt met een micro:bit en een eenvoudige meetopstelling.</li>
+            <li>Heeft een demomodus voor uitleg, voorbereiding of toestellen zonder hardware.</li>
+            <li>Gebruikt lokale bibliotheken voor grafieken en PDF-export.</li>
+          </ul>
+        </article>
+
+        <figure class="schematic-frame">
+          <img src="media/schema_tinkercad.png" alt="Micro:bit schema voor de windmolenmeting" />
+          <figcaption>Schema van de meetopstelling met micro:bit en weerstand.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section" id="leren">
+      <p class="section-kicker">Wat leer je?</p>
+      <h2 class="section-title">STEaM in één compacte opdracht.</h2>
+
+      <div class="feature-grid">
+        <article class="feature-card">
+          <div class="feature-icon">01</div>
+          <h3 class="card-title">Meten met sensoren</h3>
+          <p class="card-copy">
+            Leerlingen zien hoe de molen energie genereert, de micro:bit meet en hoe deze data gevisualiseerd wordt. 
+          </p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">02</div>
+          <h3 class="card-title">Spanning en stroom</h3>
+          <p class="card-copy">
+            We visualiseren beide begrippen via grafieken en koppelen dit aan een gekende casus: het opladen van jouw smartphone. 
+          </p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">03</div>
+          <h3 class="card-title">Vermogen en energie</h3>
+          <p class="card-copy">
+            De app maakt zichtbaar wat <code>P = V * I</code> en <code>E = som(P * dt)</code> betekenen.
+          </p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon">04</div>
+          <h3 class="card-title">Onderzoeken</h3>
+          <p class="card-copy">
+            Leerlingen vergelijken proeven en schrijven een besluit op basis van data.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="leerkrachten">
+      <article class="audience-card">
+        <p class="section-kicker">Voor leerkrachten</p>
+        <h2 class="section-title">Snel inzetbaar in de klas.</h2>
+        <p class="section-lead">
+          De opdracht is gemaakt voor leerlingen van ongeveer 13-14 jaar oud. De interface helpt leerlingen stap voor stap zonder van de fysieke windmolen weg te trekken.
+        </p>
+        <ul class="bullet-list">
+          <li>Geschikt voor korte onderzoeksmomenten binnen Informaticawetenschappen.</li>
+          <li>Bruikbaar met echte hardware of als klassikale demo.</li>
+          <li>PDF-export bundelt hypothese, proeven, grafiek, besluit en reflectie.</li>
+          <li>Aanpasbaar door leerkrachten die vlot met bestanden en GitHub Pages werken.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="section" id="privacy">
+      <p class="section-kicker">Privacy</p>
+      <h2 class="section-title">Geen accounts, geen serveropslag.</h2>
+      <div class="privacy-grid">
+        <article class="feature-card">
+          <h3 class="card-title">Privacyvriendelijk</h3>
+          <p class="card-copy">
+            De app draait lokaal in de browser. Meetgegevens blijven op het toestel en worden alleen
+            geëxporteerd wanneer een leerling zelf een CSV of PDF downloadt.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-label="Start">
+      <div class="cta-band">
+        <div>
+          <h2>Open het onderzoeksplatform.</h2>
+          <p>
+            Start de meting, test de demomodus of laat leerlingen hun proeven vergelijken en rapporteren.
+          </p>
+        </div>
+        <div class="cta-actions">
+          <a class="btn btn-primary" href="platform.html">Start onderzoeksplatform</a>
+          <a class="btn btn-secondary" href="https://www.aiindeklas.be">AI in de Klas</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-title">Onderzoekopdracht IW</div>
+        <p>
+          Auteur: Robbe Wulgaert · AI in de Klas · robbewulgaert.be<br />
+          © 2026 Robbe Wulgaert. Alle rechten voorbehouden.
+        </p>
+      </div>
+
+      <div class="footer-links" aria-label="Footerlinks">
+        <a href="https://www.robbewulgaert.be">robbewulgaert.be</a>
+        <a href="https://www.aiindeklas.be">AI in de Klas</a>
+        <a href="platform.html">Onderzoeksplatform</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const menuButton = document.getElementById("menuButton");
+    const navLinks = document.getElementById("navLinks");
+
+    menuButton?.addEventListener("click", () => {
+      const isOpen = navLinks.classList.toggle("is-open");
+      menuButton.setAttribute("aria-expanded", String(isOpen));
+    });
+
+    navLinks?.addEventListener("click", (event) => {
+      if (event.target instanceof HTMLAnchorElement) {
+        navLinks.classList.remove("is-open");
+        menuButton.setAttribute("aria-expanded", "false");
+      }
+    });
+  </script>
+</body>
+</html>
