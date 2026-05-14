@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Onderzoeksplatform IW</title>
+  <!--
+    Onderzoeksplatform IW - project wind
+    Copyright (c) 2026 Robbe Wulgaert
+    Citeer/vermeld als: Robbe Wulgaert, AI in de Klas, robbewulgaert.be
+  -->
+  <link rel="stylesheet" href="style.css" />
+  <script src="vendor/chart.umd.min.js" defer></script>
+  <script src="vendor/jspdf.umd.min.js" defer></script>
+  <script src="vendor/jspdf.plugin.autotable.min.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body class="app-page">
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">Project Wind J2</p>
+      <h1>Onderzoeksplatform IW</h1>
+    </div>
+    <div class="header-actions">
+      <a class="secondary-button header-link" href="index.html">Startpagina</a>
+      <button id="btn-schema" class="secondary-button" type="button">Schema</button>
+      <button id="btn-help" class="secondary-button" type="button">Hulp</button>
+      <span id="connection-status" class="status-pill">Niet verbonden</span>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <section id="compatibility-notice" class="notice hidden" aria-live="polite"></section>
+
+    <nav class="workflow-nav" aria-label="Onderzoeksstappen">
+      <a href="#prediction" class="workflow-step is-active" data-step-link="prediction">1. Voorspel</a>
+      <a href="#setup" class="workflow-step" data-step-link="setup">2. Bouw</a>
+      <a href="#calibration" class="workflow-step" data-step-link="calibration">3. Kalibreer</a>
+      <a href="#measurement" class="workflow-step" data-step-link="measurement">4. Meet</a>
+      <a href="#comparison" class="workflow-step" data-step-link="comparison">5. Vergelijk</a>
+      <a href="#conclusion" class="workflow-step" data-step-link="conclusion">6. Besluit</a>
+    </nav>
+
+    <section id="prediction" class="workflow-section">
+      <div class="section-heading">
+        <p class="eyebrow">Voorspellen</p>
+        <h2>Onderzoeksvraag en voorspelling</h2>
+      </div>
+      <div class="form-grid">
+        <label>
+          Onderzoeksvraag
+          <textarea id="input-question" rows="2" placeholder="Welke opstelling levert het meeste elektrische vermogen?"></textarea>
+        </label>
+        <label>
+          Hypothese
+          <textarea id="input-hypothesis" rows="2" placeholder="Ik verwacht dat ... omdat ..."></textarea>
+        </label>
+        <label>
+          Onafhankelijke variabele
+          <input id="input-independent" type="text" value="Ventilatorafstand" />
+        </label>
+        <label>
+          Afhankelijke variabele
+          <input id="input-dependent" type="text" value="Gemiddeld vermogen (W)" />
+        </label>
+      </div>
+    </section>
+
+    <section id="setup" class="workflow-section">
+      <div class="section-heading">
+        <p class="eyebrow">Checklist</p>
+        <h2>Klaar voor een betrouwbare meting</h2>
+      </div>
+      <div class="checklist" id="setup-checklist">
+        <label><input type="checkbox" /> GND is aangesloten.</label>
+        <label><input type="checkbox" /> Draden zitten veilig vast en zijn aangesloten.</label>
+        <label><input type="checkbox" /> De micro:bit heeft de correcte code gekregen.</label>
+      </div>
+    </section>
+
+    <section id="calibration" class="workflow-section">
+      <div class="section-heading">
+        <p class="eyebrow">Kalibreren</p>
+        <h2>Nulpunt vastleggen</h2>
+      </div>
+      <div class="calibration-layout">
+        <div>
+          <p>Verbind eerst de micro:bit. Laat de generator stilstaan en leg dan het nulpunt vast. De app trekt deze kleine offset af van latere metingen.</p>
+          <div class="calibration-actions">
+            <button id="btn-connect" class="primary-button" type="button">Verbind micro:bit</button>
+            <button id="btn-calibrate" class="primary-button" type="button" disabled>Nulpunt vastleggen</button>
+            <button id="btn-reset-calibration" class="ghost-button" type="button">Kalibratie wissen</button>
+          </div>
+        </div>
+        <div class="calibration-values">
+          <span>Spanning offset: <strong id="voltage-offset">0.000 V</strong></span>
+          <span>Stroom offset: <strong id="current-offset">0.000 A</strong></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="measurement" class="workflow-section">
+      <div class="section-heading">
+        <p class="eyebrow">Meten</p>
+        <h2>Meten per proef</h2>
+      </div>
+
+      <div class="toolbar">
+        <button id="btn-demo" class="secondary-button" type="button">Start demomodus</button>
+        <button id="btn-new-trial" class="secondary-button" type="button">Nieuwe proef</button>
+        <button id="btn-start" class="success-button" type="button" disabled>Start meting</button>
+        <button id="btn-stop" class="danger-button" type="button" disabled>Stop meting</button>
+      </div>
+
+      <div class="trial-editor">
+        <label>
+          Proefnaam
+          <input id="trial-name" type="text" value="Proef 1" />
+        </label>
+        <label>
+          Variabele
+          <select id="trial-variable">
+            <option value="Ventilatorafstand">Ventilatorafstand</option>
+            <option value="Kracht ventilator">Kracht ventilator</option>
+            <option value="Bladhoek">Bladhoek</option>
+            <option value="Belastingsweerstand">Belastingsweerstand</option>
+            <option value="Andere variabele">Andere variabele</option>
+          </select>
+        </label>
+        <label>
+          Waarde
+          <input id="trial-value" type="text" placeholder="bijv. stand 1, 30 cm, 20 graden, 100 Ohm" />
+        </label>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric">
+          <span>Spanning</span>
+          <strong id="voltage">--</strong>
+          <small>V</small>
+        </div>
+        <div class="metric">
+          <span>Stroom</span>
+          <strong id="current">--</strong>
+          <small>A</small>
+        </div>
+        <div class="metric">
+          <span>Vermogen</span>
+          <strong id="power">--</strong>
+          <small>W</small>
+        </div>
+        <div class="metric">
+          <span>Energie</span>
+          <strong id="energy">--</strong>
+          <small>Wh</small>
+        </div>
+      </div>
+
+      <div class="formula-band">
+        <div>
+          <strong>P = V * I</strong>
+          <span id="power-formula">Spanning (V) is de elektrische duwkracht. Stroom (A) is hoeveel elektrische lading er loopt. Vermogen (W) vertelt hoeveel energie per seconde wordt opgewekt.</span>
+        </div>
+        <div>
+          <strong>E = som(P * dt)</strong>
+          <span id="energy-formula">Energie (Wh) is al het vermogen samengeteld over de meettijd. De tijdstap komt uit de micro:bit.</span>
+        </div>
+        <div>
+          <strong>Batterijmodel</strong>
+          <span id="battery-model">3.361 mAh batterij aan 3.7 V = 12.44 Wh, vergelijkbaar met een iPhone.</span>
+        </div>
+      </div>
+
+      <div class="measurement-layout">
+        <div class="chart-panel">
+          <canvas id="live-chart" aria-label="Live grafiek spanning, stroom en vermogen"></canvas>
+        </div>
+        <div class="battery-panel">
+          <div class="battery-outline">
+            <div class="battery-tip"></div>
+            <div class="battery-level"></div>
+          </div>
+          <p id="charge-percent">0.0%</p>
+          <p id="time-remaining">-- uur resterend</p>
+          <small>Schatting: vergelijkbaar met een iPhone, zonder omzettings- of laadverliezen.</small>
+        </div>
+      </div>
+    </section>
+
+    <section id="comparison" class="workflow-section">
+      <div class="section-heading">
+        <p class="eyebrow">Vergelijken</p>
+        <h2>Proeven vergelijken</h2>
+      </div>
+      <div class="chart-panel comparison-chart-panel">
+        <canvas id="comparison-chart" aria-label="Overlay grafiek vermogen per proef"></canvas>
+      </div>
+      <div class="table-actions">
+        <button id="btn-export-csv" class="secondary-button" type="button">Exporteer CSV</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Proef</th>
+              <th>Variabele</th>
+              <th>Waarde</th>
+              <th>Duur</th>
+              <th>Gem. P</th>
+              <th>Max. P</th>
+              <th>Energie</th>
+            </tr>
+          </thead>
+          <tbody id="trial-summary-body">
+            <tr><td colspan="7">Nog geen proeven opgeslagen.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="conclusion" class="workflow-section">
+      <div class="section-heading">
+        <p class="eyebrow">Besluiten</p>
+        <h2>Besluit en reflectie</h2>
+      </div>
+      <div class="form-grid">
+        <label>
+          Wat toont de vergelijking?
+          <textarea id="input-conclusion" rows="3" placeholder="De beste opstelling was ... omdat ..."></textarea>
+        </label>
+        <label>
+          Korte reflectie
+          <textarea id="input-reflection" rows="3" placeholder="Wat zou je aanpassen aan jouw fysieke windmolen?"></textarea>
+        </label>
+      </div>
+      <div class="table-actions report-actions">
+        <button id="btn-report" class="primary-button" type="button">Genereer PDF</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="overlay-schema" class="overlay hidden" role="dialog" aria-modal="true" aria-label="Circuit schema">
+    <div class="modal large-modal">
+      <button id="btn-close-schema" class="close-button" type="button" aria-label="Sluit schema">x</button>
+      <img src="media/schema_tinkercad.png" alt="Circuit schema met micro:bit, generator en 100 Ohm weerstand" />
+    </div>
+  </div>
+
+  <div id="overlay-help" class="overlay hidden" role="dialog" aria-modal="true" aria-label="Experiment hulp">
+    <div class="modal">
+      <button id="btn-close-help" class="close-button" type="button" aria-label="Sluit hulp">x</button>
+      <h2>Snelle hulp</h2>
+      <ol>
+        <li>Vul eerst onderzoeksvraag, hypothese en variabelen in.</li>
+        <li>Controleer de bedrading met de checklist.</li>
+        <li>Leg het nulpunt vast terwijl de generator stilstaat.</li>
+        <li>Maak voor elke instelling een nieuwe proef en meet even lang.</li>
+        <li>Vergelijk vooral gemiddeld vermogen, maximaal vermogen en totale energie.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div id="report-modal" class="overlay hidden" role="dialog" aria-modal="true" aria-label="Rapportinstellingen">
+    <form id="report-form" class="modal">
+      <button id="btn-cancel" class="close-button" type="button" aria-label="Annuleer rapport">x</button>
+      <h2>Rapportinstellingen</h2>
+      <label>
+        Aantal studenten
+        <input type="number" id="input-count" min="1" value="1" />
+      </label>
+      <label>
+        Studentennamen
+        <input type="text" id="input-names" placeholder="Naam 1, Naam 2 ..." />
+      </label>
+      <p class="muted">De PDF neemt onderzoeksvraag, hypothese, variabelen, proeftabel, grafiek, conclusie en reflectie mee.</p>
+      <div class="modal-actions">
+        <button type="submit" class="primary-button">Genereer PDF</button>
+      </div>
+    </form>
+  </div>
+
+  <footer class="app-footer">
+    <p>Auteur: Robbe Wulgaert · AI in de Klas · robbewulgaert.be · © 2026 Robbe Wulgaert. Alle rechten voorbehouden.</p>
+  </footer>
+</body>
+</html>
