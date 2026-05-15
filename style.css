@@ -1589,3 +1589,108 @@ th {
     white-space: normal;
   }
 }
+
+/* JS in de Klas platformheader alignment. */
+.app-page .app-header {
+  background: #fff;
+  color: var(--text);
+  border-bottom: 1.5px solid #eee;
+  box-shadow: none;
+  padding: 0.8rem 1.2rem;
+}
+
+.app-page .app-header h1 {
+  color: var(--text);
+}
+
+.app-page .app-header .eyebrow {
+  color: var(--brand);
+}
+
+.app-page .header-actions {
+  gap: 0.6rem;
+}
+
+.app-page .primary-button,
+.app-page .secondary-button,
+.app-page .success-button,
+.app-page .danger-button,
+.app-page .ghost-button {
+  min-height: 42px;
+  border-radius: 8px;
+  padding: 0.7em 1.1em;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(82, 0, 255, 0.08);
+}
+
+.app-page .primary-button,
+.app-page .success-button {
+  background: var(--brand);
+  color: #fff;
+  border-color: var(--brand);
+  box-shadow: 0 2px 8px rgba(82, 0, 255, 0.10);
+}
+
+.app-page .primary-button:hover,
+.app-page .success-button:hover {
+  background: var(--brand-dark);
+  border-color: var(--brand-dark);
+}
+
+.app-page .secondary-button,
+.app-page .ghost-button {
+  background: #fff;
+  color: var(--brand-dark);
+  border: 1px solid rgba(82, 0, 255, 0.22);
+}
+
+.app-page .status-pill {
+  min-height: 38px;
+  border-color: #ece6fa;
+  background: #fff;
+  color: var(--brand-dark);
+  box-shadow: 0 2px 8px rgba(82, 0, 255, 0.06);
+}
+
+.app-page .workflow-nav {
+  gap: 0.65rem;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+.app-page .workflow-step {
+  border-radius: 999px;
+  background: #fff;
+  color: var(--brand-dark);
+}
+
+.app-page .workflow-step.is-active {
+  background: var(--brand);
+  color: #fff;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px #ece6fa;
+}
+
+.app-page #measurement > .toolbar {
+  column-gap: 1.05rem;
+  row-gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.app-page #measurement #btn-start,
+.app-page #measurement #btn-stop {
+  min-width: 9.5rem;
+}
+
+@media (max-width: 560px) {
+  .app-page .app-header {
+    padding: 0.8rem 1.2rem;
+  }
+
+  .app-page #measurement #btn-start,
+  .app-page #measurement #btn-stop {
+    min-width: 0;
+  }
+}
