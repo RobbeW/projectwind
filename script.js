@@ -207,67 +207,78 @@ window.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    liveChart = new Chart(els.liveChartCanvas.getContext('2d'), {
-      type: 'line',
-      data: {
-        datasets: [
-          makeDataset('Spanning (V)', '#5200FF', 'yVoltage'),
-          makeDataset('Stroom (A)', '#00A3A3', 'yCurrent'),
-          makeDataset('Vermogen (W)', '#FFB000', 'yPower'),
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        parsing: false,
-        animation: false,
-        interaction: { mode: 'nearest', intersect: false },
-        scales: {
-          x: {
-            type: 'linear',
-            title: { display: true, text: 'Tijd sinds start proef (s)' },
-          },
-          yVoltage: {
-            type: 'linear',
-            position: 'left',
-            title: { display: true, text: 'Spanning (V)' },
-          },
-          yCurrent: {
-            type: 'linear',
-            position: 'right',
-            title: { display: true, text: 'Stroom (A)' },
-            grid: { drawOnChartArea: false },
-          },
-          yPower: {
-            type: 'linear',
-            position: 'right',
-            display: false,
-          },
-        },
-      },
-    });
+    const liveChartContext = getCanvasContext(els.liveChartCanvas, 'live-chart');
+    const comparisonChartContext = getCanvasContext(els.comparisonChartCanvas, 'comparison-chart');
 
-    comparisonChart = new Chart(els.comparisonChartCanvas.getContext('2d'), {
-      type: 'line',
-      data: { datasets: [] },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        parsing: false,
-        animation: false,
-        interaction: { mode: 'nearest', intersect: false },
-        scales: {
-          x: {
-            type: 'linear',
-            title: { display: true, text: 'Tijd sinds start proef (s)' },
-          },
-          y: {
-            title: { display: true, text: 'Vermogen (W)' },
-            beginAtZero: true,
+    if (liveChartContext) {
+      liveChart = new Chart(liveChartContext, {
+        type: 'line',
+        data: {
+          datasets: [
+            makeDataset('Spanning (V)', '#5200FF', 'yVoltage'),
+            makeDataset('Stroom (A)', '#00A3A3', 'yCurrent'),
+            makeDataset('Vermogen (W)', '#FFB000', 'yPower'),
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          parsing: false,
+          animation: false,
+          interaction: { mode: 'nearest', intersect: false },
+          scales: {
+            x: {
+              type: 'linear',
+              title: { display: true, text: 'Tijd sinds start proef (s)' },
+            },
+            yVoltage: {
+              type: 'linear',
+              position: 'left',
+              title: { display: true, text: 'Spanning (V)' },
+            },
+            yCurrent: {
+              type: 'linear',
+              position: 'right',
+              title: { display: true, text: 'Stroom (A)' },
+              grid: { drawOnChartArea: false },
+            },
+            yPower: {
+              type: 'linear',
+              position: 'right',
+              display: false,
+            },
           },
         },
-      },
-    });
+      });
+    }
+
+    if (comparisonChartContext) {
+      comparisonChart = new Chart(comparisonChartContext, {
+        type: 'line',
+        data: { datasets: [] },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          parsing: false,
+          animation: false,
+          interaction: { mode: 'nearest', intersect: false },
+          scales: {
+            x: {
+              type: 'linear',
+              title: { display: true, text: 'Tijd sinds start proef (s)' },
+            },
+            y: {
+              title: { display: true, text: 'Vermogen (W)' },
+              beginAtZero: true,
+            },
+          },
+        },
+      });
+    }
+
+    if (!liveChartContext || !comparisonChartContext) {
+      showCompatibilityMessage('Een grafiekcanvas ontbreekt. Meetwaarden blijven werken, maar ververs hard als de browser nog een oude scriptversie gebruikt.');
+    }
   }
 
   function makeDataset(label, color, yAxisID) {
@@ -281,6 +292,22 @@ window.addEventListener('DOMContentLoaded', () => {
       borderWidth: 2,
       pointRadius: 0,
     };
+  }
+
+  function getCanvasContext(canvas, id) {
+    if (!(canvas instanceof HTMLCanvasElement)) {
+      console.warn(`Canvas #${id} niet gevonden.`);
+      return null;
+    }
+    return canvas.getContext('2d');
+  }
+
+  function showCompatibilityMessage(message) {
+    if (!els.compatibilityNotice) {
+      return;
+    }
+    els.compatibilityNotice.classList.remove('hidden');
+    els.compatibilityNotice.insertAdjacentHTML('beforeend', `<p>${escapeHtml(message)}</p>`);
   }
 
   function updateCompatibilityNotice() {
