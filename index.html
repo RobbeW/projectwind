@@ -15,6 +15,43 @@
   <meta name="author" content="Robbe Wulgaert, AI in de Klas, robbewulgaert.be" />
   <meta name="copyright" content="Copyright (c) 2026 Robbe Wulgaert" />
   <link rel="stylesheet" href="style.css" />
+  <style id="language-toggle-styles">
+.language-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid rgba(82, 0, 255, 0.22);
+  border-radius: 999px;
+  background: #fff;
+  padding: 4px;
+  box-shadow: 0 10px 24px rgba(82, 0, 255, 0.08);
+}
+.language-toggle button {
+  min-width: 44px;
+  min-height: 36px;
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 10px;
+  background: transparent;
+  color: var(--muted, var(--delphi-muted, #625b70));
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+.language-toggle button.is-active {
+  background: var(--brand, var(--brand-purple, var(--delphi-blue, #5200FF)));
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(82, 0, 255, 0.20);
+}
+.language-toggle button:focus-visible {
+  outline: 3px solid rgba(61, 255, 208, 0.75);
+  outline-offset: 2px;
+}
+@media (max-width: 760px) {
+  .language-toggle { order: 2; }
+}
+</style>
 </head>
 <body class="landing-page">
   <a class="skip-link" href="#main">Spring naar inhoud</a>
@@ -38,6 +75,10 @@
       </div>
 
       <div class="nav-actions">
+        <div class="language-toggle" role="group" aria-label="Taalkeuze">
+          <button type="button" class="is-active" data-language-choice="nl" aria-pressed="true">NL</button>
+          <button type="button" data-language-choice="en" aria-pressed="false">ENG</button>
+        </div>
         <a class="btn btn-primary" href="platform.html">Start platform</a>
         <button class="menu-button" id="menuButton" type="button" aria-expanded="false" aria-controls="navLinks">
           Menu
@@ -309,5 +350,196 @@
       }
     });
   </script>
+<script id="language-toggle-script">
+(() => {
+  const LANGUAGE_KEY = "aiindeklas:index-language";
+  const TRANSLATIONS = {
+  "Spring naar inhoud": "Skip to content",
+  "Spring naar hoofdinhoud": "Skip to main content",
+  "Hoofdnavigatie": "Main navigation",
+  "Paginaonderdelen": "Page sections",
+  "Taalkeuze": "Language selection",
+  "Werking": "How it works",
+  "Wat leer je?": "What will you learn?",
+  "Onderdelen": "Components",
+  "Familie": "Family",
+  "Voor leerkrachten": "For teachers",
+  "Leerlijn": "Learning path",
+  "Benodigdheden": "Materials",
+  "Privacy": "Privacy",
+  "Opstelling": "Setup",
+  "Gebruik": "Use",
+  "README": "README",
+  "Platform": "Platform",
+  "Pythia": "Pythia",
+  "Start leerplatform": "Start learning platform",
+  "Start platform": "Start platform",
+  "Menu": "Menu",
+  "Bekijk de opdracht": "View the assignment",
+  "Lees README": "Read README",
+  "Leerplatform": "Learning platform",
+  "Onderzoeksplatform": "Research platform",
+  "Oefeningmaker": "Exercise builder",
+  "Open oefeningmaker": "Open exercise builder",
+  "Plaats in de leerlijn": "Place in the learning path",
+  "Van platformen naar projecten.": "From platforms to projects.",
+  "De platformen bouwen het computationeel denken op. De projecten gebruiken dat denken in een vakoverschrijdende opdracht waarin leerlingen bouwen, meten, testen en besluiten.": "The platforms build computational thinking. The projects use that thinking in a cross-curricular assignment in which students build, measure, test and conclude.",
+  "Leren computationeel denken": "Learning computational thinking",
+  "van blokken naar code, van code naar onderzoek": "from blocks to code, from code to research",
+  "Platformen": "Platforms",
+  "STEaM-projecten": "STEaM projects",
+  "Blockly": "Blockly",
+  "JavaScript": "JavaScript",
+  "HTML": "HTML",
+  "Dodona": "Dodona",
+  "Delphi": "Delphi",
+  "Robothand": "Robotic hand",
+  "Wind": "Wind",
+  "Slimme vuilnisbak": "Smart bin",
+  "Slimme Vuilnisbak": "Smart Bin",
+  "Fijnstof": "Particulate matter",
+  "visueel denken in stappen.": "visual step-by-step thinking.",
+  "logica in echte code.": "logic in real code.",
+  "webpagina's structureren.": "structuring webpages.",
+  "Python in de Klas met opvolging.": "Python in the Classroom with tracking.",
+  "licht oefenen in de browser.": "lightweight practice in the browser.",
+  "Arduino, sensoren, servo's en beweging.": "Arduino, sensors, servos and movement.",
+  "Micro:bit, energie, spanning en stroom.": "Micro:bit, energy, voltage and current.",
+  "AI, beeldherkenning, data en microcontrollers.": "AI, image recognition, data and microcontrollers.",
+  "Arduino, luchtkwaliteit, data en postersessie.": "Arduino, air quality, data and poster session.",
+  "De platformen trainen computationeel denken. De projecten laten leerlingen dat denken inzetten in een vakoverschrijdende opdracht.": "The platforms train computational thinking. The projects let students apply that thinking in a cross-curricular assignment.",
+  "Geen accounts, geen serveropslag.": "No accounts, no server storage.",
+  "Privacyvriendelijk": "Privacy-friendly",
+  "Geen installatie of leerlingenaccount.": "No installation or student account.",
+  "Lokale bibliotheken voor grafieken en PDF-export.": "Local libraries for charts and PDF export.",
+  "Geschikt voor GitHub Pages.": "Suitable for GitHub Pages.",
+  "robbewulgaert.be": "robbewulgaert.be",
+  "AI in de Klas": "AI in de Klas",
+  "Auteur: Robbe Wulgaert · AI in de Klas · robbewulgaert.be": "Author: Robbe Wulgaert · AI in de Klas · robbewulgaert.be",
+  "© 2026 Robbe Wulgaert. Alle rechten voorbehouden.": "© 2026 Robbe Wulgaert. All rights reserved.",
+  "Auteur: Robbe Wulgaert · AI in de Klas · robbewulgaert.be · © 2026 Robbe Wulgaert.": "Author: Robbe Wulgaert · AI in de Klas · robbewulgaert.be · © 2026 Robbe Wulgaert.",
+  "Robbe Wulgaert, AI in de Klas, robbewulgaert.be": "Robbe Wulgaert, AI in de Klas, robbewulgaert.be",
+  "Licentie": "License",
+  "Third-party notices": "Third-party notices",
+  "Contact": "Contact",
+  "Project Wind J2": "Project Wind J2",
+  "Onderzoek energie met je eigen windmolen.": "Investigate energy with your own wind turbine.",
+  "Bouw, meet en vergelijk. Leerlingen leren hoe een windmolen elektrische energie opwekt en gebruiken de micro:bit om spanning, stroom, vermogen en energie te onderzoeken.": "Build, measure and compare. Students learn how a wind turbine generates electrical energy and use the micro:bit to investigate voltage, current, power and energy.",
+  "Bouw een molen en genereer zelf energie": "Build a turbine and generate energy yourself",
+  "De opdracht begeleidt leerlingen door dezelfde stappen als een klein onderzoek: voorspellen, bouwen, kalibreren, meten, vergelijken en besluiten. De app draait als gewone website en werkt met WebSerial in Chrome of Edge. Geen installatie, geen leerlingenaccounts.": "The assignment guides students through the same steps as a small investigation: predict, build, calibrate, measure, compare and conclude. The app runs as a normal website and works with WebSerial in Chrome or Edge. No installation, no student accounts.",
+  "Voorspel": "Predict",
+  "Leerlingen formuleren een onderzoeksvraag en een hypothese.": "Students formulate a research question and a hypothesis.",
+  "Meet": "Measure",
+  "De micro:bit stuurt live data naar de browser. De app toont spanning, stroom, vermogen en energie.": "The micro:bit sends live data to the browser. The app shows voltage, current, power and energy.",
+  "Vergelijk": "Compare",
+  "Meerdere proeven komen samen in één grafiek en in een PDF-rapport dat leerlingen kunnen indienen.": "Multiple trials come together in one graph and in a PDF report that students can submit.",
+  "De opstelling": "The setup",
+  "Een concrete brug tussen techniek en data.": "A concrete link between technology and data.",
+  "De windmolen wordt een generator. De micro:bit leest de spanning en stroom uit, waarna de browser berekent hoeveel vermogen en energie de opstelling oplevert.": "The wind turbine becomes a generator. The micro:bit reads voltage and current, after which the browser calculates how much power and energy the setup produces.",
+  "Werkt met een micro:bit en een eenvoudige meetopstelling.": "Works with a micro:bit and a simple measurement setup.",
+  "Heeft een demomodus voor uitleg, voorbereiding of toestellen zonder hardware.": "Has a demo mode for explanation, preparation or devices without hardware.",
+  "Gebruikt lokale bibliotheken voor grafieken en PDF-export.": "Uses local libraries for charts and PDF export.",
+  "Schema van de meetopstelling met micro:bit en weerstand.": "Diagram of the measurement setup with micro:bit and resistor.",
+  "STEaM in één compacte opdracht.": "STEaM in one compact assignment.",
+  "Meten met sensoren": "Measuring with sensors",
+  "Leerlingen zien hoe de molen energie genereert, de micro:bit meet en hoe deze data gevisualiseerd wordt.": "Students see how the turbine generates energy, how the micro:bit measures and how that data is visualised.",
+  "Spanning en stroom": "Voltage and current",
+  "We visualiseren beide begrippen via grafieken en koppelen dit aan een gekende casus: het opladen van jouw smartphone.": "We visualise both concepts through graphs and connect them to a familiar case: charging your smartphone.",
+  "Vermogen en energie": "Power and energy",
+  "De app maakt zichtbaar wat": "The app makes visible what",
+  "betekenen.": "mean.",
+  "Onderzoeken": "Investigating",
+  "Leerlingen vergelijken proeven en schrijven een besluit op basis van data.": "Students compare trials and write a conclusion based on data.",
+  "Snel inzetbaar in de klas.": "Ready to use in class.",
+  "De opdracht is gemaakt voor leerlingen van ongeveer 13-14 jaar oud. De interface helpt leerlingen stap voor stap zonder van de fysieke windmolen weg te trekken.": "The assignment is made for students around 13-14 years old. The interface helps them step by step without pulling attention away from the physical wind turbine.",
+  "Geschikt voor korte onderzoeksmomenten binnen Informaticawetenschappen.": "Suitable for short research moments within Computer Science.",
+  "Bruikbaar met echte hardware of als klassikale demo.": "Usable with real hardware or as a whole-class demo.",
+  "PDF-export bundelt hypothese, proeven, grafiek, besluit en reflectie.": "PDF export bundles hypothesis, trials, graph, conclusion and reflection.",
+  "Aanpasbaar door leerkrachten die vlot met bestanden en GitHub Pages werken.": "Adaptable by teachers comfortable with files and GitHub Pages.",
+  "De app draait lokaal in de browser. Meetgegevens blijven op het toestel en worden alleen geëxporteerd wanneer een leerling zelf een CSV of PDF downloadt.": "The app runs locally in the browser. Measurement data stays on the device and is only exported when a student downloads a CSV or PDF.",
+  "Open het onderzoeksplatform.": "Open the research platform.",
+  "Start de meting, test de demomodus of laat leerlingen hun proeven vergelijken en rapporteren.": "Start measuring, test the demo mode or let students compare and report their trials."
+};
+  const META = {
+  "title": "Project Wind",
+  "description": "Project Wind is a lightweight browser environment for wind turbine research with micro:bit, live measurements and PDF export, without installation or student accounts."
+};
+  const SKIP_TAGS = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "TEXTAREA", "INPUT", "SELECT", "OPTION"]);
+  const TEXT_NODES = [];
+  const ATTR_NODES = [];
+  let originalTitle = document.title;
+  let originalDescription = null;
+  const normalize = (value) => String(value || "").replace(/\s+/g, " ").trim();
+  function preserveOuterWhitespace(original, translated) {
+    const start = original.match(/^\s*/)?.[0] || "";
+    const end = original.match(/\s*$/)?.[0] || "";
+    return start + translated + end;
+  }
+  function collectTextNodes() {
+    if (TEXT_NODES.length) return;
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        const parent = node.parentElement;
+        if (!parent || SKIP_TAGS.has(parent.tagName)) return NodeFilter.FILTER_REJECT;
+        return normalize(node.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      }
+    });
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      TEXT_NODES.push({ node, original: node.nodeValue, key: normalize(node.nodeValue) });
+    }
+  }
+  function collectAttributes() {
+    if (ATTR_NODES.length) return;
+    document.querySelectorAll("[aria-label], [alt], [title], [placeholder]").forEach((element) => {
+      ["aria-label", "alt", "title", "placeholder"].forEach((attr) => {
+        if (element.hasAttribute(attr)) {
+          const original = element.getAttribute(attr);
+          ATTR_NODES.push({ element, attr, original, key: normalize(original) });
+        }
+      });
+    });
+  }
+  function setLanguage(language) {
+    const useEnglish = language === "en";
+    collectTextNodes();
+    collectAttributes();
+    TEXT_NODES.forEach((entry) => {
+      const translated = TRANSLATIONS[entry.key];
+      entry.node.nodeValue = useEnglish && translated ? preserveOuterWhitespace(entry.original, translated) : entry.original;
+    });
+    ATTR_NODES.forEach((entry) => {
+      const translated = TRANSLATIONS[entry.key];
+      entry.element.setAttribute(entry.attr, useEnglish && translated ? translated : entry.original);
+    });
+    document.documentElement.lang = useEnglish ? "en" : "nl-BE";
+    document.title = useEnglish && META.title ? META.title : originalTitle;
+    const description = document.querySelector('meta[name="description"]');
+    if (description) {
+      if (originalDescription === null) originalDescription = description.getAttribute("content") || "";
+      description.setAttribute("content", useEnglish && META.description ? META.description : originalDescription);
+    }
+    document.querySelectorAll("[data-language-choice]").forEach((button) => {
+      const isActive = button.dataset.languageChoice === (useEnglish ? "en" : "nl");
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-pressed", String(isActive));
+    });
+    try { localStorage.setItem(LANGUAGE_KEY, useEnglish ? "en" : "nl"); } catch (error) {}
+  }
+  function initLanguageToggle() {
+    document.querySelectorAll("[data-language-choice]").forEach((button) => {
+      button.addEventListener("click", () => setLanguage(button.dataset.languageChoice));
+    });
+    let saved = "nl";
+    try {
+      const requested = new URLSearchParams(window.location.search).get("lang");
+      saved = requested || localStorage.getItem(LANGUAGE_KEY) || "nl";
+    } catch (error) {}
+    setLanguage(saved === "en" ? "en" : "nl");
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initLanguageToggle);
+  else initLanguageToggle();
+})();
+</script>
 </body>
 </html>

@@ -14,6 +14,48 @@
   <script src="vendor/jspdf.umd.min.js" defer></script>
   <script src="vendor/jspdf.plugin.autotable.min.js" defer></script>
   <script src="script.js?v=20260516-2" defer></script>
+  <style id="platform-language-toggle-styles">
+.language-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid rgba(82, 0, 255, 0.22);
+  border-radius: 999px;
+  background: #fff;
+  padding: 4px;
+  box-shadow: 0 10px 24px rgba(82, 0, 255, 0.08);
+}
+.language-toggle button {
+  min-width: 44px;
+  min-height: 34px;
+  border: 0;
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: transparent;
+  color: var(--muted, #625b70);
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+.language-toggle button.is-active {
+  background: var(--brand, var(--brand-purple, var(--primary, #5200FF)));
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(82, 0, 255, 0.20);
+}
+.language-toggle button:focus-visible {
+  outline: 3px solid rgba(61, 255, 208, 0.75);
+  outline-offset: 2px;
+}
+.header-actions .language-toggle,
+.toolbar .language-toggle,
+.app-actions .language-toggle {
+  flex: 0 0 auto;
+}
+@media (max-width: 760px) {
+  .language-toggle { order: 2; }
+}
+</style>
 </head>
 <body class="app-page">
   <header class="app-header">
@@ -22,7 +64,12 @@
       <h1>Platform Wind</h1>
     </div>
     <div class="header-actions">
-      <a class="secondary-button header-link" href="index.html">Startpagina</a>
+      
+      <div class="language-toggle" role="group" aria-label="Taalkeuze">
+        <button type="button" class="is-active" data-language-choice="nl" aria-pressed="true">NL</button>
+        <button type="button" data-language-choice="en" aria-pressed="false">ENG</button>
+      </div>
+<a class="secondary-button header-link" href="index.html">Startpagina</a>
       <button id="btn-schema" class="secondary-button" type="button">Schema</button>
       <button id="btn-help" class="secondary-button" type="button">Hulp</button>
       <span id="connection-status" class="status-pill">Niet verbonden</span>
@@ -282,5 +329,383 @@
   <footer class="app-footer">
     <p>Auteur: Robbe Wulgaert · AI in de Klas · robbewulgaert.be · © 2026 Robbe Wulgaert. Alle rechten voorbehouden.</p>
   </footer>
+<script id="platform-language-toggle-script">
+(() => {
+  const LANGUAGE_KEY = "aiindeklas:index-language";
+  const TRANSLATIONS = {
+  "Taalkeuze": "Language selection",
+  "Startpagina": "Start page",
+  "Start platform": "Start platform",
+  "Start leerplatform": "Start learning platform",
+  "Niet verbonden": "Not connected",
+  "Verbind": "Connect",
+  "Verbinden": "Connecting",
+  "Bouw": "Build",
+  "Bouwen": "Building",
+  "Voorspel": "Predict",
+  "Voorspellen": "Predicting",
+  "Meet": "Measure",
+  "Meten": "Measuring",
+  "Vergelijk": "Compare",
+  "Vergelijken": "Comparing",
+  "Besluit": "Conclusion",
+  "Besluiten": "Concluding",
+  "Kalibreer": "Calibrate",
+  "Kalibreren": "Calibrating",
+  "Observeer": "Observe",
+  "Observeren": "Observing",
+  "Speel": "Play",
+  "Model": "Model",
+  "Kies model": "Choose model",
+  "Test": "Test",
+  "Testen": "Testing",
+  "Sorteer": "Sort",
+  "Sorteren": "Sorting",
+  "Menu": "Menu",
+  "Inhoud": "Contents",
+  "Sluiten": "Close",
+  "Sluiten X": "Close X",
+  "x": "x",
+  "X": "X",
+  "Oefening": "Exercise",
+  "OEFENING": "EXERCISE",
+  "Code-editor": "Code editor",
+  "Editor": "Editor",
+  "Uitvoeren": "Run",
+  "Uitvoer": "Output",
+  "Console-uitvoer": "Console output",
+  "Feedback": "Feedback",
+  "Status": "Status",
+  "Data": "Data",
+  "Diagnose": "Diagnostics",
+  "Nog geen data ontvangen.": "No data received yet.",
+  "Laatste regel: --": "Last line: --",
+  "Laatste code: --": "Last code: --",
+  "Rapport": "Report",
+  "Rapportinstellingen": "Report settings",
+  "Wie maakt dit rapport?": "Who is making this report?",
+  "Naam": "Name",
+  "Naam:": "Name:",
+  "Naam of namen": "Name or names",
+  "Klas": "Class",
+  "Klas:": "Class:",
+  "Annuleren": "Cancel",
+  "Annuleer": "Cancel",
+  "OK": "OK",
+  "Doorgaan": "Continue",
+  "Reset": "Reset",
+  "Genereer PDF": "Generate PDF",
+  "Maak PDF": "Create PDF",
+  "Exporteren": "Export",
+  "Exporteren naar PDF": "Export to PDF",
+  "Reeks exporteren naar PDF": "Export series to PDF",
+  "Vooruitgang wissen": "Clear progress",
+  "Voortgang wissen": "Clear progress",
+  "Alleen huidige oefening": "Current exercise only",
+  "Alle voortgang": "All progress",
+  "Volledige reeks": "Full series",
+  "Volledige cursus": "Full course",
+  "Kies wat je wil wissen.": "Choose what you want to clear.",
+  "Donker/Licht": "Dark/Light",
+  "Thema": "Theme",
+  "Donkere/lichte modus": "Dark/light mode",
+  "Donkere of lichte modus": "Dark or light mode",
+  "Formularium": "Reference sheet",
+  "HTML Formularium": "HTML reference sheet",
+  "Python Formularium": "Python reference sheet",
+  "Blockly Formularium": "Blockly reference sheet",
+  "Hulp": "Help",
+  "Help": "Help",
+  "Schema": "Diagram",
+  "Checklist": "Checklist",
+  "Onderzoeksvraag": "Research question",
+  "Hypothese": "Hypothesis",
+  "Besluit en reflectie": "Conclusion and reflection",
+  "Reflectie": "Reflection",
+  "Korte reflectie": "Short reflection",
+  "Waarde": "Value",
+  "Variabele": "Variable",
+  "Proef": "Trial",
+  "Duur": "Duration",
+  "Plek": "Location",
+  "Tijd": "Time",
+  "Bron": "Source",
+  "Klasse": "Class",
+  "Zekerheid": "Confidence",
+  "Verwacht": "Expected",
+  "Voorspeld": "Predicted",
+  "Verstuurd": "Sent",
+  "Projectstappen": "Project steps",
+  "Onderzoeksstappen": "Research steps",
+  "Auteur: Robbe Wulgaert · AI in de Klas · robbewulgaert.be · © 2026 Robbe Wulgaert. Alle rechten voorbehouden.": "Author: Robbe Wulgaert · AI in de Klas · robbewulgaert.be · © 2026 Robbe Wulgaert. All rights reserved.",
+  "Platform Wind": "Wind Platform",
+  "1. Voorspel": "1. Predict",
+  "2. Bouw": "2. Build",
+  "3. Kalibreer": "3. Calibrate",
+  "4. Meet": "4. Measure",
+  "5. Vergelijk": "5. Compare",
+  "6. Besluit": "6. Conclude",
+  "Onderzoeksvraag en voorspelling": "Research question and prediction",
+  "Onafhankelijke variabele": "Independent variable",
+  "Afhankelijke variabele": "Dependent variable",
+  "Klaar voor een betrouwbare meting": "Ready for a reliable measurement",
+  "GND is aangesloten.": "GND is connected.",
+  "Draden zitten veilig vast en zijn aangesloten.": "Wires are safely fixed and connected.",
+  "De micro:bit heeft de correcte code gekregen.": "The micro:bit has received the correct code.",
+  "Nulpunt vastleggen": "Set zero point",
+  "Verbind eerst de micro:bit. Laat de generator stilstaan en leg dan het nulpunt vast. De app trekt deze kleine offset af van latere metingen.": "Connect the micro:bit first. Keep the generator still and then set the zero point. The app subtracts this small offset from later measurements.",
+  "Verbind micro:bit": "Connect micro:bit",
+  "Kalibratie wissen": "Clear calibration",
+  "Spanning offset:": "Voltage offset:",
+  "Stroom offset:": "Current offset:",
+  "Meten per proef": "Measure per trial",
+  "Start demomodus": "Start demo mode",
+  "Stop demomodus": "Stop demo mode",
+  "Nieuwe proef": "New trial",
+  "Start meting": "Start measurement",
+  "Stop meting": "Stop measurement",
+  "Proefnaam": "Trial name",
+  "Ventilatorafstand": "Fan distance",
+  "Kracht ventilator": "Fan strength",
+  "Bladhoek": "Blade angle",
+  "Belastingsweerstand": "Load resistance",
+  "Andere variabele": "Other variable",
+  "Spanning": "Voltage",
+  "Stroom": "Current",
+  "Vermogen": "Power",
+  "Energie": "Energy",
+  "Spanning (V) is de elektrische duwkracht. Stroom (A) is hoeveel elektrische lading er loopt. Vermogen (W) vertelt hoeveel energie per seconde wordt opgewekt.": "Voltage (V) is the electrical push. Current (A) is how much electric charge flows. Power (W) tells how much energy is generated per second.",
+  "E = som(P * dt)": "E = sum(P * dt)",
+  "Energie (Wh) is al het vermogen samengeteld over de meettijd. De tijdstap komt uit de micro:bit.": "Energy (Wh) is all power added up over the measurement time. The time step comes from the micro:bit.",
+  "Batterijmodel": "Battery model",
+  "3.361 mAh batterij aan 3.7 V = 12.44 Wh, vergelijkbaar met een iPhone.": "3,361 mAh battery at 3.7 V = 12.44 Wh, comparable to an iPhone.",
+  "-- uur resterend": "-- hours remaining",
+  "Schatting: vergelijkbaar met een iPhone, zonder omzettings- of laadverliezen.": "Estimate: comparable to an iPhone, without conversion or charging losses.",
+  "Proeven vergelijken": "Compare trials",
+  "Exporteer CSV": "Export CSV",
+  "Gem. P": "Avg. P",
+  "Max. P": "Max. P",
+  "Nog geen proeven opgeslagen.": "No trials saved yet.",
+  "Wat toont de vergelijking?": "What does the comparison show?",
+  "Snelle hulp": "Quick help",
+  "Vul eerst onderzoeksvraag, hypothese en variabelen in.": "First fill in the research question, hypothesis and variables.",
+  "Controleer de bedrading met de checklist.": "Check the wiring with the checklist.",
+  "Leg het nulpunt vast terwijl de generator stilstaat.": "Set the zero point while the generator is still.",
+  "Maak voor elke instelling een nieuwe proef en meet even lang.": "Create a new trial for each setting and measure for the same duration.",
+  "Vergelijk vooral gemiddeld vermogen, maximaal vermogen en totale energie.": "Mainly compare average power, maximum power and total energy.",
+  "Aantal studenten": "Number of students",
+  "Studentennamen": "Student names",
+  "De PDF neemt onderzoeksvraag, hypothese, variabelen, proeftabel, grafiek, conclusie en reflectie mee.": "The PDF includes research question, hypothesis, variables, trial table, graph, conclusion and reflection.",
+  "Welke opstelling levert het meeste elektrische vermogen?": "Which setup produces the most electrical power?",
+  "Ik verwacht dat ... omdat ...": "I expect that ... because ...",
+  "bijv. stand 1, 30 cm, 20 graden, 100 Ohm": "e.g. setting 1, 30 cm, 20 degrees, 100 Ohm",
+  "De beste opstelling was ... omdat ...": "The best setup was ... because ...",
+  "Wat zou je aanpassen aan jouw fysieke windmolen?": "What would you change about your physical wind turbine?"
+};
+  const PATTERNS = [
+  {
+    "pattern": "^Voortgang: (.+)$",
+    "replacement": "Progress: $1"
+  },
+  {
+    "pattern": "^Snelheid: (.+) ms/stap$",
+    "replacement": "Speed: $1 ms/step"
+  },
+  {
+    "pattern": "^Snelheid: (.+)$",
+    "replacement": "Speed: $1"
+  },
+  {
+    "pattern": "^Pogingen: (.+) \\| Tijd: (.+)$",
+    "replacement": "Attempts: $1 | Time: $2"
+  },
+  {
+    "pattern": "^Level (.+)$",
+    "replacement": "Level $1"
+  },
+  {
+    "pattern": "^Turtle Level$",
+    "replacement": "Turtle level"
+  },
+  {
+    "pattern": "^Open: (.+)$",
+    "replacement": "Open: $1"
+  },
+  {
+    "pattern": "^Gesloten: (.+)$",
+    "replacement": "Closed: $1"
+  },
+  {
+    "pattern": "^Status: (.+)$",
+    "replacement": "Status: $1"
+  },
+  {
+    "pattern": "^Ronde (.+)$",
+    "replacement": "Round $1"
+  },
+  {
+    "pattern": "^dt = (.+) s\\. (.+)$",
+    "replacement": "dt = $1 s. $2"
+  },
+  {
+    "pattern": "^Data ontvangen via (.+)\\. (.+) meetpunten in (.+)\\.$",
+    "replacement": "Data received via $1. $2 data points in $3."
+  },
+  {
+    "pattern": "^Meting gestart voor (.+)\\.$",
+    "replacement": "Measurement started for $1."
+  },
+  {
+    "pattern": "^Meting gestopt voor (.+)\\.$",
+    "replacement": "Measurement stopped for $1."
+  },
+  {
+    "pattern": "^Verbonden \\((.+) baud\\)$",
+    "replacement": "Connected ($1 baud)"
+  },
+  {
+    "pattern": "^Meten \\((.+) baud\\)$",
+    "replacement": "Measuring ($1 baud)"
+  }
+];
+  const META = {
+  "title": "Platform Wind",
+  "description": "Research platform for Project Wind with micro:bit, WebSerial, demo mode, charts and PDF reporting."
+};
+  const SKIP_SELECTOR = "script, style, noscript, textarea, input, canvas, svg, code, pre, kbd, samp, .CodeMirror, .cm-editor, .blocklySvg, .blocklyWidgetDiv, .blocklyTooltipDiv";
+  const textRecords = new WeakMap();
+  const attrRecords = [];
+  let currentLanguage = "nl";
+  let applying = false;
+  let originalTitle = document.title;
+  let originalDescription = null;
+  const normalize = (value) => String(value || "").replace(/\s+/g, " ").trim();
+  function preserveOuterWhitespace(original, translated) {
+    const start = String(original).match(/^\s*/)?.[0] || "";
+    const end = String(original).match(/\s*$/)?.[0] || "";
+    return start + translated + end;
+  }
+  function translateKey(key) {
+    if (TRANSLATIONS[key]) return TRANSLATIONS[key];
+    for (const item of PATTERNS) {
+      const regex = new RegExp(item.pattern);
+      if (regex.test(key)) return key.replace(regex, item.replacement);
+    }
+    return null;
+  }
+  function shouldSkipNode(node) {
+    const element = node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
+    return !element || element.closest(SKIP_SELECTOR);
+  }
+  function translateTextNode(node) {
+    if (shouldSkipNode(node)) return;
+    const raw = node.nodeValue;
+    const key = normalize(raw);
+    if (!key) return;
+    let record = textRecords.get(node);
+    if (!record) {
+      record = { original: raw, translatedByUs: false };
+      textRecords.set(node, record);
+    }
+    if (currentLanguage === "en") {
+      if (!record.translatedByUs) record.original = raw;
+      const translated = translateKey(key);
+      if (translated) {
+        node.nodeValue = preserveOuterWhitespace(raw, translated);
+        record.translatedByUs = true;
+      }
+    } else if (record.translatedByUs) {
+      node.nodeValue = record.original;
+      record.translatedByUs = false;
+    }
+  }
+  function collectAttributeRecords() {
+    if (attrRecords.length) return;
+    document.querySelectorAll("[aria-label], [alt], [title], [placeholder]").forEach((element) => {
+      if (element.closest(SKIP_SELECTOR)) return;
+      ["aria-label", "alt", "title", "placeholder"].forEach((attr) => {
+        if (element.hasAttribute(attr)) {
+          attrRecords.push({ element, attr, original: element.getAttribute(attr), translatedByUs: false });
+        }
+      });
+    });
+  }
+  function translateAttributes() {
+    collectAttributeRecords();
+    attrRecords.forEach((entry) => {
+      const current = entry.element.getAttribute(entry.attr) || "";
+      if (currentLanguage === "en") {
+        if (!entry.translatedByUs) entry.original = current;
+        const translated = translateKey(normalize(current));
+        if (translated) {
+          entry.element.setAttribute(entry.attr, translated);
+          entry.translatedByUs = true;
+        }
+      } else if (entry.translatedByUs) {
+        entry.element.setAttribute(entry.attr, entry.original);
+        entry.translatedByUs = false;
+      }
+    });
+  }
+  function translateTree(root = document.body) {
+    if (!root || shouldSkipNode(root)) return;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        return shouldSkipNode(node) || !normalize(node.nodeValue) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(translateTextNode);
+  }
+  function setLanguage(language) {
+    currentLanguage = language === "en" ? "en" : "nl";
+    applying = true;
+    translateTree(document.body);
+    translateAttributes();
+    document.documentElement.lang = currentLanguage === "en" ? "en" : "nl-BE";
+    document.title = currentLanguage === "en" && META.title ? META.title : originalTitle;
+    const description = document.querySelector('meta[name="description"]');
+    if (description) {
+      if (originalDescription === null) originalDescription = description.getAttribute("content") || "";
+      description.setAttribute("content", currentLanguage === "en" && META.description ? META.description : originalDescription);
+    }
+    document.querySelectorAll("[data-language-choice]").forEach((button) => {
+      const isActive = button.dataset.languageChoice === currentLanguage;
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-pressed", String(isActive));
+    });
+    try { localStorage.setItem(LANGUAGE_KEY, currentLanguage); } catch (error) {}
+    applying = false;
+  }
+  function initLanguageToggle() {
+    document.querySelectorAll("[data-language-choice]").forEach((button) => {
+      button.addEventListener("click", () => setLanguage(button.dataset.languageChoice));
+    });
+    let saved = "nl";
+    try {
+      const requested = new URLSearchParams(window.location.search).get("lang");
+      saved = requested || localStorage.getItem(LANGUAGE_KEY) || "nl";
+    } catch (error) {}
+    setLanguage(saved === "en" ? "en" : "nl");
+    const observer = new MutationObserver((mutations) => {
+      if (applying || currentLanguage !== "en") return;
+      applying = true;
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === Node.TEXT_NODE) translateTextNode(node);
+          else if (node.nodeType === Node.ELEMENT_NODE) translateTree(node);
+        });
+        if (mutation.type === "characterData") translateTextNode(mutation.target);
+      });
+      applying = false;
+    });
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+    window.setPlatformLanguage = setLanguage;
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initLanguageToggle);
+  else initLanguageToggle();
+})();
+</script>
 </body>
 </html>
