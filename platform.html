@@ -327,7 +327,7 @@
   </div>
 
   <footer class="app-footer">
-    <p>Auteur: Robbe Wulgaert · AI in de Klas · robbewulgaert.be · © 2026 Robbe Wulgaert. Alle rechten voorbehouden.</p>
+    <p>Auteur: Robbe Wulgaert Â· AI in de Klas Â· robbewulgaert.be Â· Â© 2026 Robbe Wulgaert. Alle rechten voorbehouden.</p>
   </footer>
 <script id="platform-language-toggle-script">
 (() => {
@@ -437,7 +437,7 @@
   "Verstuurd": "Sent",
   "Projectstappen": "Project steps",
   "Onderzoeksstappen": "Research steps",
-  "Auteur: Robbe Wulgaert · AI in de Klas · robbewulgaert.be · © 2026 Robbe Wulgaert. Alle rechten voorbehouden.": "Author: Robbe Wulgaert · AI in de Klas · robbewulgaert.be · © 2026 Robbe Wulgaert. All rights reserved.",
+  "Auteur: Robbe Wulgaert Â· AI in de Klas Â· robbewulgaert.be Â· Â© 2026 Robbe Wulgaert. Alle rechten voorbehouden.": "Author: Robbe Wulgaert Â· AI in de Klas Â· robbewulgaert.be Â· Â© 2026 Robbe Wulgaert. All rights reserved.",
   "Platform Wind": "Wind Platform",
   "1. Voorspel": "1. Predict",
   "2. Bouw": "2. Build",
@@ -572,21 +572,26 @@
   "title": "Platform Wind",
   "description": "Research platform for Project Wind with micro:bit, WebSerial, demo mode, charts and PDF reporting."
 };
-  const SKIP_SELECTOR = "script, style, noscript, textarea, input, canvas, svg, code, pre, kbd, samp, .CodeMirror, .cm-editor, .blocklySvg, .blocklyWidgetDiv, .blocklyTooltipDiv";
+  const SKIP_SELECTOR = "script, style, noscript, textarea, input, canvas, svg, iframe, code, pre, kbd, samp, [contenteditable='true'], .CodeMirror, .cm-editor, .blocklySvg, .blocklyWidgetDiv, .blocklyTooltipDiv";
+  const TRANSLATABLE_ATTRIBUTES = ["aria-label", "alt", "title", "placeholder"];
+  const OBSERVER_OPTIONS = { childList: true, subtree: true, characterData: true };
   const textRecords = new WeakMap();
-  const attrRecords = [];
+  const attrRecords = new WeakMap();
   let currentLanguage = "nl";
   let applying = false;
+  let observer = null;
+  let queuedMutations = [];
+  let translationScheduled = false;
   let originalTitle = document.title;
   let originalDescription = null;
-  const normalize = (value) => String(value || "").replace(/\s+/g, " ").trim();
+  const normalize = (value) => String(value || "").replace(/s+/g, " ").trim();
   function preserveOuterWhitespace(original, translated) {
-    const start = String(original).match(/^\s*/)?.[0] || "";
-    const end = String(original).match(/\s*$/)?.[0] || "";
+    const start = String(original).match(/^s*/)?.[0] || "";
+    const end = String(original).match(/s*$/)?.[0] || "";
     return start + translated + end;
   }
   function translateKey(key) {
-    if (TRANSLATIONS[key]) return TRANSLATIONS[key];
+    if (Object.prototype.hasOwnProperty.call(TRANSLATIONS, key)) return TRANSLATIONS[key];
     for (const item of PATTERNS) {
       const regex = new RegExp(item.pattern);
       if (regex.test(key)) return key.replace(regex, item.replacement);
@@ -597,58 +602,96 @@
     const element = node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
     return !element || element.closest(SKIP_SELECTOR);
   }
+  function setTextNodeValue(node, value, record) {
+    if (node.nodeValue !== value) node.nodeValue = value;
+    record.translated = value;
+    record.translatedByUs = true;
+  }
   function translateTextNode(node) {
-    if (shouldSkipNode(node)) return;
-    const raw = node.nodeValue;
-    const key = normalize(raw);
-    if (!key) return;
+    if (!node || node.nodeType !== Node.TEXT_NODE || shouldSkipNode(node)) return;
+    const raw = node.nodeValue || "";
+    if (!normalize(raw)) return;
     let record = textRecords.get(node);
     if (!record) {
-      record = { original: raw, translatedByUs: false };
+      record = { original: raw, translated: "", translatedByUs: false };
       textRecords.set(node, record);
     }
     if (currentLanguage === "en") {
-      if (!record.translatedByUs) record.original = raw;
-      const translated = translateKey(key);
-      if (translated) {
-        node.nodeValue = preserveOuterWhitespace(raw, translated);
-        record.translatedByUs = true;
+      if (record.translatedByUs && raw === record.translated) return;
+      record.original = raw;
+      const translated = translateKey(normalize(record.original));
+      if (!translated) {
+        record.translated = "";
+        record.translatedByUs = false;
+        return;
+      }
+      const next = preserveOuterWhitespace(record.original, translated);
+      if (next !== raw) setTextNodeValue(node, next, record);
+      else {
+        record.translated = "";
+        record.translatedByUs = false;
       }
     } else if (record.translatedByUs) {
-      node.nodeValue = record.original;
+      if (raw !== record.original) node.nodeValue = record.original;
+      record.translated = "";
       record.translatedByUs = false;
     }
   }
-  function collectAttributeRecords() {
-    if (attrRecords.length) return;
-    document.querySelectorAll("[aria-label], [alt], [title], [placeholder]").forEach((element) => {
-      if (element.closest(SKIP_SELECTOR)) return;
-      ["aria-label", "alt", "title", "placeholder"].forEach((attr) => {
-        if (element.hasAttribute(attr)) {
-          attrRecords.push({ element, attr, original: element.getAttribute(attr), translatedByUs: false });
-        }
-      });
-    });
+  function getAttributeRecord(element, attr, current) {
+    let records = attrRecords.get(element);
+    if (!records) {
+      records = new Map();
+      attrRecords.set(element, records);
+    }
+    if (!records.has(attr)) records.set(attr, { original: current, translated: "", translatedByUs: false });
+    return records.get(attr);
   }
-  function translateAttributes() {
-    collectAttributeRecords();
-    attrRecords.forEach((entry) => {
-      const current = entry.element.getAttribute(entry.attr) || "";
+  function translateElementAttributes(element) {
+    if (!element || element.nodeType !== Node.ELEMENT_NODE || element.closest(SKIP_SELECTOR)) return;
+    TRANSLATABLE_ATTRIBUTES.forEach((attr) => {
+      if (!element.hasAttribute(attr)) return;
+      const current = element.getAttribute(attr) || "";
+      if (!normalize(current)) return;
+      const record = getAttributeRecord(element, attr, current);
       if (currentLanguage === "en") {
-        if (!entry.translatedByUs) entry.original = current;
-        const translated = translateKey(normalize(current));
-        if (translated) {
-          entry.element.setAttribute(entry.attr, translated);
-          entry.translatedByUs = true;
+        if (record.translatedByUs && current === record.translated) return;
+        record.original = current;
+        const translated = translateKey(normalize(record.original));
+        if (!translated) {
+          record.translated = "";
+          record.translatedByUs = false;
+          return;
         }
-      } else if (entry.translatedByUs) {
-        entry.element.setAttribute(entry.attr, entry.original);
-        entry.translatedByUs = false;
+        if (translated !== current) {
+          element.setAttribute(attr, translated);
+          record.translated = translated;
+          record.translatedByUs = true;
+        } else {
+          record.translated = "";
+          record.translatedByUs = false;
+        }
+      } else if (record.translatedByUs) {
+        if (current !== record.original) element.setAttribute(attr, record.original);
+        record.translated = "";
+        record.translatedByUs = false;
       }
     });
   }
+  function translateAttributes(root = document.body) {
+    if (!root) return;
+    if (root.nodeType === Node.ELEMENT_NODE) translateElementAttributes(root);
+    if (root.querySelectorAll) {
+      root.querySelectorAll("[aria-label], [alt], [title], [placeholder]").forEach(translateElementAttributes);
+    }
+  }
   function translateTree(root = document.body) {
-    if (!root || shouldSkipNode(root)) return;
+    if (!root) return;
+    if (root.nodeType === Node.TEXT_NODE) {
+      translateTextNode(root);
+      return;
+    }
+    if (shouldSkipNode(root)) return;
+    translateAttributes(root);
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode(node) {
         return shouldSkipNode(node) || !normalize(node.nodeValue) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
@@ -658,11 +701,17 @@
     while (walker.nextNode()) nodes.push(walker.currentNode);
     nodes.forEach(translateTextNode);
   }
-  function setLanguage(language) {
-    currentLanguage = language === "en" ? "en" : "nl";
+  function pauseObserver(callback) {
+    if (observer) observer.disconnect();
     applying = true;
-    translateTree(document.body);
-    translateAttributes();
+    try {
+      callback();
+    } finally {
+      applying = false;
+      if (observer && document.body) observer.observe(document.body, OBSERVER_OPTIONS);
+    }
+  }
+  function syncChrome() {
     document.documentElement.lang = currentLanguage === "en" ? "en" : "nl-BE";
     document.title = currentLanguage === "en" && META.title ? META.title : originalTitle;
     const description = document.querySelector('meta[name="description"]');
@@ -675,36 +724,61 @@
       button.classList.toggle("is-active", isActive);
       button.setAttribute("aria-pressed", String(isActive));
     });
+  }
+  function setLanguage(language) {
+    currentLanguage = language === "en" ? "en" : "nl";
+    pauseObserver(() => {
+      translateTree(document.body);
+      syncChrome();
+    });
     try { localStorage.setItem(LANGUAGE_KEY, currentLanguage); } catch (error) {}
-    applying = false;
+  }
+  function processQueuedMutations() {
+    translationScheduled = false;
+    if (applying || currentLanguage !== "en" || !queuedMutations.length) {
+      queuedMutations = [];
+      return;
+    }
+    const mutations = queuedMutations;
+    queuedMutations = [];
+    pauseObserver(() => {
+      const roots = new Set();
+      const textNodes = new Set();
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === Node.TEXT_NODE) textNodes.add(node);
+          else if (node.nodeType === Node.ELEMENT_NODE) roots.add(node);
+        });
+        if (mutation.type === "characterData") textNodes.add(mutation.target);
+      });
+      roots.forEach((root) => translateTree(root));
+      textNodes.forEach((node) => translateTextNode(node));
+    });
+  }
+  function scheduleMutationTranslation(mutations) {
+    if (applying || currentLanguage !== "en") return;
+    queuedMutations.push(...mutations);
+    if (translationScheduled) return;
+    translationScheduled = true;
+    const schedule = window.requestAnimationFrame || ((callback) => window.setTimeout(callback, 0));
+    schedule(processQueuedMutations);
   }
   function initLanguageToggle() {
     document.querySelectorAll("[data-language-choice]").forEach((button) => {
       button.addEventListener("click", () => setLanguage(button.dataset.languageChoice));
     });
+    observer = new MutationObserver(scheduleMutationTranslation);
     let saved = "nl";
     try {
       const requested = new URLSearchParams(window.location.search).get("lang");
       saved = requested || localStorage.getItem(LANGUAGE_KEY) || "nl";
     } catch (error) {}
     setLanguage(saved === "en" ? "en" : "nl");
-    const observer = new MutationObserver((mutations) => {
-      if (applying || currentLanguage !== "en") return;
-      applying = true;
-      mutations.forEach((mutation) => {
-        mutation.addedNodes.forEach((node) => {
-          if (node.nodeType === Node.TEXT_NODE) translateTextNode(node);
-          else if (node.nodeType === Node.ELEMENT_NODE) translateTree(node);
-        });
-        if (mutation.type === "characterData") translateTextNode(mutation.target);
-      });
-      applying = false;
-    });
-    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
     window.setPlatformLanguage = setLanguage;
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initLanguageToggle);
   else initLanguageToggle();
+
 })();
 </script>
 </body>
