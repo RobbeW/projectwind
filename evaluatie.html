@@ -1,0 +1,190 @@
+<!doctype html>
+<!--
+  Project Wind - evaluatieformulier
+  Copyright (c) 2026 Robbe Wulgaert
+-->
+<html lang="nl-BE">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Project Wind - Evaluatie</title>
+  <meta name="description" content="Leerkrachtformulier voor snelle practicumobservatie en scorekaarten bij Project Wind." />
+  <meta name="author" content="Robbe Wulgaert, AI in de Klas, robbewulgaert.be" />
+  <meta name="copyright" content="Copyright (c) 2026 Robbe Wulgaert" />
+  <style>
+    :root { --brand:#5200FF; --brand-dark:#3700B3; --aqua:#03ddef; --ink:#1A224C; --muted:#625b70; --bg:#F9F8FC; --panel:#ffffff; --line:#e6e1ef; --danger:#b42318; --shadow:0 18px 45px rgba(82,0,255,.10); --radius:8px; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family:Roboto, system-ui, -apple-system, "Segoe UI", Arial, sans-serif; line-height:1.5; }
+    body.drawer-open { overflow:hidden; }
+    .drawer-toggle { position:fixed; inline-size:1px; block-size:1px; opacity:0; pointer-events:none; }
+    a { color:inherit; }
+    .skip-link { position:absolute; left:-999px; top:8px; background:var(--brand); color:#fff; padding:10px 14px; border-radius:999px; z-index:30; }
+    .skip-link:focus { left:12px; }
+    .site-header { position:sticky; top:0; z-index:12; background:rgba(255,255,255,.94); backdrop-filter:blur(14px); border-bottom:1px solid var(--line); }
+    .nav { width:min(1180px, calc(100% - 32px)); margin:0 auto; min-height:76px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+    .brand-link { display:flex; align-items:center; gap:10px; text-decoration:none; min-width:0; }
+    .brand-mark { display:grid; place-items:center; width:42px; height:42px; border-radius:12px; background:var(--brand); color:#fff; font-weight:900; box-shadow:0 12px 28px rgba(82,0,255,.22); flex:0 0 auto; }
+    .brand-copy { display:grid; line-height:1.1; }
+    .brand-title { font-weight:900; }
+    .brand-subtitle { color:var(--muted); font-size:.86rem; }
+    .nav-actions, .actions { display:flex; align-items:center; justify-content:flex-end; gap:10px; flex-wrap:wrap; }
+    .btn, button.btn { appearance:none; border:1px solid var(--line); border-radius:999px; min-height:42px; padding:10px 16px; background:#fff; color:var(--ink); font:inherit; font-weight:900; text-decoration:none; cursor:pointer; box-shadow:0 10px 26px rgba(26,34,76,.06); }
+    .btn:hover { border-color:rgba(82,0,255,.45); box-shadow:0 14px 30px rgba(82,0,255,.12); }
+    .btn-primary { background:var(--brand); border-color:var(--brand); color:#fff; }
+    .btn-secondary { background:#fff; color:var(--brand); }
+    .btn-danger { color:var(--danger); }
+    .btn-small { min-height:34px; padding:7px 11px; font-size:.88rem; }
+    main { width:min(1180px, calc(100% - 32px)); margin:0 auto; }
+    .eval-hero { padding:48px 0 22px; display:grid; grid-template-columns:minmax(0, 1fr) minmax(260px, 360px); gap:24px; align-items:end; }
+    h1, h2, h3, p { margin-top:0; }
+    h1 { margin-bottom:12px; font-size:clamp(2rem, 5vw, 4rem); line-height:.98; letter-spacing:0; }
+    .hero-lead { max-width:780px; color:var(--muted); font-size:1.08rem; }
+    .section-kicker { margin:0 0 8px; color:var(--brand); font-size:.78rem; font-weight:900; letter-spacing:.11em; text-transform:uppercase; }
+    .summary-panel, .panel, .class-drawer { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); }
+    .summary-panel { padding:18px; }
+    .score-number { display:flex; align-items:baseline; gap:8px; margin:8px 0; }
+    .score-number strong { font-size:3rem; line-height:1; color:var(--brand); }
+    .score-number span { color:var(--muted); font-weight:800; }
+    .meter { height:10px; border-radius:999px; background:#ede8ff; overflow:hidden; }
+    .meter span { display:block; width:0%; height:100%; background:linear-gradient(90deg,var(--brand),var(--aqua)); transition:width .2s ease; }
+    .score-detail { margin:10px 0 0; color:var(--muted); font-size:.94rem; }
+    .score-area { padding-bottom:44px; }
+    .panel { padding:18px; }
+    .panel-title, .drawer-header { display:flex; justify-content:space-between; gap:12px; align-items:start; margin-bottom:14px; }
+    .panel-title h2, .drawer-header h2 { margin:0; font-size:1.35rem; }
+    .muted { color:var(--muted); }
+    .form-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; }
+    label { display:grid; gap:6px; font-weight:900; color:var(--ink); }
+    input, textarea { width:100%; border:1px solid var(--line); border-radius:var(--radius); padding:10px 12px; background:#fff; color:var(--ink); font:inherit; }
+    textarea { resize:vertical; min-height:92px; }
+    .wide { grid-column:1 / -1; }
+    .rubric { display:grid; gap:10px; }
+    .criterion { border:1px solid var(--line); border-radius:var(--radius); background:#fff; padding:12px; display:grid; grid-template-columns:minmax(0, 1fr) auto; gap:12px; align-items:center; }
+    .criterion h3 { margin:0 0 4px; font-size:1rem; }
+    .criterion p { margin:0; color:var(--muted); font-size:.93rem; }
+    .score-scale { display:grid; grid-template-columns:repeat(4, 42px); gap:6px; }
+    .score-button { appearance:none; height:38px; border:1px solid var(--line); border-radius:999px; background:#fff; color:var(--ink); font-weight:900; cursor:pointer; }
+    .score-button.is-active { background:var(--brand); border-color:var(--brand); color:#fff; }
+    .score-legend { display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin:10px 0 0; }
+    .score-legend span { color:var(--muted); font-size:.78rem; }
+    .actions { justify-content:flex-start; margin-top:14px; }
+    .drawer-backdrop { position:fixed; inset:0; z-index:18; background:rgba(26,34,76,.34); opacity:0; pointer-events:none; transition:opacity .18s ease; }
+    .class-drawer { position:fixed; top:0; right:0; left:auto; z-index:20; width:min(620px, calc(100vw - 20px)); height:100dvh; border-radius:0; border-right:0; transform:translate3d(104%,0,0); transition:transform .22s ease; display:flex; flex-direction:column; padding:18px; box-shadow:-24px 0 60px rgba(26,34,76,.20); }
+    body.drawer-open .drawer-backdrop, .drawer-backdrop.is-visible, .drawer-toggle:checked ~ .drawer-backdrop { opacity:1; pointer-events:auto; }
+    body.drawer-open .class-drawer, .class-drawer.is-open, .drawer-toggle:checked ~ .class-drawer { transform:translate3d(0,0,0); }
+    .drawer-tools { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+    .saved-table-wrap { overflow:auto; border:1px solid var(--line); border-radius:var(--radius); flex:1; min-height:0; }
+    table { width:100%; border-collapse:collapse; min-width:520px; background:#fff; }
+    th, td { padding:10px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+    th { font-size:.76rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); background:#fbfaff; }
+    tr:last-child td { border-bottom:0; }
+    .card-actions { display:flex; gap:6px; flex-wrap:wrap; }
+    .empty-state { color:var(--muted); margin:0; padding:16px; }
+    .privacy-note { margin:20px 0 38px; color:var(--muted); font-size:.92rem; }
+    footer { border-top:1px solid var(--line); padding:22px 0 34px; color:var(--muted); font-size:.9rem; }
+    @media (max-width:900px) { .eval-hero { grid-template-columns:1fr; } .summary-panel { order:-1; } .criterion { grid-template-columns:1fr; } .score-scale { grid-template-columns:repeat(4, minmax(44px, 1fr)); } }
+    @media (max-width:640px) { .nav { align-items:flex-start; padding:12px 0; flex-direction:column; } .nav-actions { width:100%; justify-content:flex-start; } .form-grid, .score-legend { grid-template-columns:1fr; } h1 { font-size:2.2rem; } }
+    @media print { .site-header, .actions, .drawer-backdrop, .class-drawer, .privacy-note { display:none !important; } body { background:#fff; } main { width:100%; } .panel, .summary-panel { box-shadow:none; } .eval-hero { display:block; } }
+  </style>
+</head>
+<body>
+  <input class="drawer-toggle" id="drawerToggle" type="checkbox" aria-hidden="true" />
+  <a class="skip-link" href="#main">Spring naar evaluatie</a>
+  <header class="site-header">
+    <nav class="nav" aria-label="Hoofdnavigatie">
+      <a class="brand-link" href="index.html" aria-label="Project Wind">
+        <span class="brand-mark">IW</span>
+        <span class="brand-copy"><span class="brand-title">Project Wind</span><span class="brand-subtitle">Evaluatie practicum</span></span>
+      </a>
+      <div class="nav-actions"><label class="btn btn-secondary" id="openClassDrawer" for="drawerToggle" role="button" tabindex="0">Klasoverzicht</label><a class="btn btn-secondary" href="index.html">Startpagina</a><a class="btn btn-primary" href="platform.html">Platform</a></div>
+    </nav>
+  </header>
+  <main id="main">
+    <section class="eval-hero"><div><h1>Evaluatie Wind</h1></div><aside class="summary-panel" aria-live="polite"><p class="section-kicker">Totaal</p><div class="score-number"><strong id="scoreTotal">0</strong><span id="scoreMax">/ 21</span></div><div class="meter" aria-hidden="true"><span id="scoreMeter"></span></div><p class="score-detail" id="scoreDetail">Nog geen criteria gescoord.</p></aside></section>
+    <section class="score-area panel" aria-labelledby="formTitle"><div class="panel-title"><div><p class="section-kicker">Observatie</p><h2 id="formTitle">Scorekaart</h2></div></div><div class="form-grid"><label>Naam/namen leerlingen<input id="studentNames" autocomplete="off" placeholder="Bijv. Noor en Adam" /></label><label>Klas<input id="className" autocomplete="off" placeholder="Bijv. 1STEAM1, 2STEAM2, 3NW3 of 4NW3" /></label><label>Datum<input id="dateInput" type="date" /></label><label>Leerkracht<input id="teacherName" autocomplete="off" placeholder="Optioneel" /></label></div><div class="panel-title" style="margin-top:20px;"><div><p class="section-kicker">Rubric</p><h2>Wat zie je gebeuren?</h2></div></div><div id="rubric" class="rubric"></div><div class="score-legend" aria-label="Scorelegende"><span><strong>0</strong> niet zichtbaar</span><span><strong>1</strong> met hulp</span><span><strong>2</strong> zelfstandig genoeg</span><span><strong>3</strong> sterk uitgelegd</span></div><div class="form-grid" style="margin-top:18px;"><label class="wide">Extra notities<textarea id="notes" placeholder="Wat wil je nog noteren over deze groep?"></textarea></label><label class="wide">Wat ging goed? Wat kan beter?<textarea id="nextStep" placeholder="Schrijf kort op wat goed ging en wat nog beter kan."></textarea></label></div><div class="actions"><button class="btn btn-primary" id="saveCard" type="button">Bewaar scorekaart</button><button class="btn btn-secondary" id="downloadCard" type="button">Download scorekaart</button><button class="btn" id="newCard" type="button">Nieuwe observatie</button></div></section>
+    <p class="privacy-note">Privacy: deze pagina gebruikt geen server. Scorekaarten worden alleen in de browser bewaard en pas een bestand wanneer jij exporteert.</p>
+  </main>
+  <label class="drawer-backdrop" id="drawerBackdrop" for="drawerToggle" aria-hidden="true"></label>
+  <aside class="class-drawer" id="classDrawer" aria-labelledby="savedTitle" aria-hidden="true" tabindex="-1"><div class="drawer-header"><div><p class="section-kicker">Klasoverzicht</p><h2 id="savedTitle">Bewaarde scorekaarten</h2><p class="muted">Alles blijft lokaal in deze browser tot je exporteert of wist.</p></div><label class="btn btn-small" id="closeClassDrawer" for="drawerToggle" role="button" tabindex="0">Sluiten</label></div><div class="drawer-tools"><button class="btn btn-secondary" id="exportCsv" type="button">Exporteer CSV</button><button class="btn" id="exportJson" type="button">Backup JSON</button><button class="btn" id="importJsonButton" type="button">Importeer JSON</button><button class="btn btn-danger" id="clearAll" type="button">Wis alles</button><input id="importJson" type="file" accept="application/json,.json" hidden /></div><div class="saved-table-wrap"><table><thead><tr><th>Leerlingen</th><th>Klas</th><th>Score</th><th>Acties</th></tr></thead><tbody id="savedCards"></tbody></table><p class="empty-state" id="emptyState">Nog geen scorekaarten bewaard.</p></div></aside>
+  <footer><main>&copy; 2026 Robbe Wulgaert. Alle rechten voorbehouden.</main></footer>
+  <script>
+    const PROJECT = {
+  "id": "wind",
+  "title": "Project Wind",
+  "shortTitle": "Wind",
+  "root": "Project Wind J2/Website",
+  "storageKey": "aiindeklas:evaluatie:wind",
+  "platformHref": "platform.html",
+  "criteria": [
+    {
+      "name": "Opstelling",
+      "focus": "GND, draden, micro:bit-code en generatoropstelling zijn gecontroleerd."
+    },
+    {
+      "name": "Onderzoek",
+      "focus": "Leerlingen kiezen een variabele en kunnen hun voorspelling kort uitleggen."
+    },
+    {
+      "name": "Nulpunt en kalibratie",
+      "focus": "Ze leggen het nulpunt vast terwijl de generator stilstaat en weten waarom dat nodig is."
+    },
+    {
+      "name": "Meetmethode",
+      "focus": "Proeven duren ongeveer even lang; per proef verandert een instelling."
+    },
+    {
+      "name": "Begrip van V, I, P en E",
+      "focus": "Leerlingen kunnen de lesbegrippen duiden tijdens hun practicum."
+    },
+    {
+      "name": "Besluit met data",
+      "focus": "Leerlingen kunnen hun onderzoeksvraag en hypothese toetsen aan de eigen data."
+    },
+    {
+      "name": "Reflectie op prototype",
+      "focus": "Ze benoemen wat ze aan hun fysieke windmolen zouden verbeteren op basis van de meting."
+    }
+  ]
+};
+    const SCORE_LABELS = ["niet zichtbaar", "met hulp", "zelfstandig genoeg", "sterk uitgelegd"];
+    const state = { scores: PROJECT.criteria.map(() => null), editingId: null };
+    const $ = (selector) => document.querySelector(selector);
+    const rubric = $("#rubric");
+    const savedCardsBody = $("#savedCards");
+    const emptyState = $("#emptyState");
+    const drawer = $("#classDrawer");
+    const drawerBackdrop = $("#drawerBackdrop");
+    const drawerToggle = $("#drawerToggle");
+    function escapeHtml(value) { return String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;"); }
+    function todayIso() { return new Date().toISOString().slice(0, 10); }
+    const storage = (() => { try { const testKey = PROJECT.storageKey + ":test"; localStorage.setItem(testKey, "1"); localStorage.removeItem(testKey); return localStorage; } catch (error) { const memory = new Map(); return { getItem: (key) => memory.get(key) || null, setItem: (key, value) => memory.set(key, String(value)) }; } })();
+    function loadCards() { try { const parsed = JSON.parse(storage.getItem(PROJECT.storageKey) || "[]"); return Array.isArray(parsed) ? parsed : []; } catch (error) { return []; } }
+    function saveCards(cards) { try { storage.setItem(PROJECT.storageKey, JSON.stringify(cards)); } catch (error) { alert("Bewaren lukt niet in deze browsercontext. Open de pagina via GitHub Pages of localhost."); } }
+    function scoreInfo(total) { const max = PROJECT.criteria.length * 3; const percent = max ? Math.round((total / max) * 100) : 0; let label = "nog oefenen"; if (percent >= 85) label = "sterk"; else if (percent >= 70) label = "goed op weg"; else if (percent >= 55) label = "basis zichtbaar"; return { max, percent, label, score10: (percent / 10).toFixed(1) }; }
+    function totalScore() { return state.scores.reduce((sum, score) => sum + (Number.isFinite(score) ? score : 0), 0); }
+    function updateScore() { const total = totalScore(); const info = scoreInfo(total); const missing = state.scores.filter((score) => score === null).length; $("#scoreTotal").textContent = total; $("#scoreMax").textContent = "/ " + info.max; $("#scoreMeter").style.width = info.percent + "%"; $("#scoreDetail").textContent = missing ? missing + " criteria zonder score. Voorlopig: " + info.percent + "% (" + info.score10 + "/10)." : info.percent + "% - " + info.label + " (" + info.score10 + "/10)."; document.querySelectorAll(".score-button").forEach((button) => { const index = Number(button.dataset.index); const score = Number(button.dataset.score); button.classList.toggle("is-active", state.scores[index] === score); button.setAttribute("aria-pressed", String(state.scores[index] === score)); }); }
+    function renderRubric() { rubric.innerHTML = PROJECT.criteria.map((criterion, index) => { const buttons = [0, 1, 2, 3].map((score) => '<button class="score-button" type="button" data-index="' + index + '" data-score="' + score + '" aria-pressed="false" title="' + SCORE_LABELS[score] + '">' + score + '</button>').join(""); return '<article class="criterion"><div><h3>' + escapeHtml(criterion.name) + '</h3><p>' + escapeHtml(criterion.focus) + '</p></div><div class="score-scale" role="group" aria-label="Score voor ' + escapeHtml(criterion.name) + '">' + buttons + '</div></article>'; }).join(""); }
+    function currentCard() { const total = totalScore(); const info = scoreInfo(total); return { id: state.editingId || String(Date.now()), projectId: PROJECT.id, projectTitle: PROJECT.title, createdAt: new Date().toISOString(), date: $("#dateInput").value || todayIso(), teacher: $("#teacherName").value.trim(), students: $("#studentNames").value.trim(), className: $("#className").value.trim(), scores: PROJECT.criteria.map((criterion, index) => ({ name: criterion.name, focus: criterion.focus, score: state.scores[index], label: state.scores[index] === null ? "niet gescoord" : SCORE_LABELS[state.scores[index]] })), total, max: info.max, percent: info.percent, score10: info.score10, level: info.label, notes: $("#notes").value.trim(), nextStep: $("#nextStep").value.trim() }; }
+    function saveCurrentCard() { const card = currentCard(); if (!card.students) { alert("Vul minstens de naam of namen van de leerlingen in."); return; } const cards = loadCards(); const index = cards.findIndex((item) => item.id === card.id); if (index >= 0) cards[index] = card; else cards.unshift(card); state.editingId = card.id; saveCards(cards); renderSavedCards(); }
+    function resetForm() { state.editingId = null; state.scores = PROJECT.criteria.map(() => null); ["#studentNames", "#className", "#teacherName", "#notes", "#nextStep"].forEach((selector) => { $(selector).value = ""; }); $("#dateInput").value = todayIso(); updateScore(); }
+    function applyCard(card) { state.editingId = card.id; state.scores = PROJECT.criteria.map((criterion, index) => { const saved = card.scores?.[index]?.score; return Number.isFinite(saved) ? saved : null; }); $("#studentNames").value = card.students || ""; $("#className").value = card.className || ""; $("#teacherName").value = card.teacher || ""; $("#dateInput").value = card.date || todayIso(); $("#notes").value = card.notes || ""; $("#nextStep").value = card.nextStep || ""; hideClassDrawer(); updateScore(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+    function deleteCard(id) { const cards = loadCards().filter((card) => card.id !== id); if (state.editingId === id) resetForm(); saveCards(cards); renderSavedCards(); }
+    function renderSavedCards() { const cards = loadCards(); emptyState.hidden = cards.length > 0; savedCardsBody.innerHTML = cards.map((card) => '<tr><td><strong>' + escapeHtml(card.students || "zonder naam") + '</strong><br><span class="muted">' + escapeHtml(card.date || "") + '</span></td><td>' + escapeHtml(card.className || "-") + '</td><td><strong>' + card.total + '/' + card.max + '</strong><br><span class="muted">' + card.percent + '% - ' + escapeHtml(card.score10) + '/10</span></td><td><div class="card-actions"><button class="btn btn-small" type="button" data-action="load" data-id="' + escapeHtml(card.id) + '">Laad</button><button class="btn btn-small" type="button" data-action="download" data-id="' + escapeHtml(card.id) + '">Download</button><button class="btn btn-small btn-danger" type="button" data-action="delete" data-id="' + escapeHtml(card.id) + '">Verwijder</button></div></td></tr>').join(""); }
+    function downloadFile(filename, content, type) { const blob = new Blob([content], { type }); const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.href = url; link.download = filename; document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url); }
+    function slug(value) { return String(value || "scorekaart").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+    function scoreCardHtml(card) { const rows = card.scores.map((item) => '<tr><td>' + escapeHtml(item.name) + '</td><td>' + (item.score ?? "-") + '</td><td>' + escapeHtml(item.label) + '</td><td>' + escapeHtml(item.focus) + '</td></tr>').join(""); return '<!doctype html><html lang="nl-BE"><head><meta charset="utf-8"><title>' + escapeHtml(card.projectTitle) + ' - scorekaart</title><style>body{font-family:Roboto,Arial,sans-serif;color:#1A224C;margin:32px;line-height:1.5}h1{color:#5200FF}table{width:100%;border-collapse:collapse}td,th{border:1px solid #e6e1ef;padding:8px;text-align:left}th{background:#f2efff}.muted{color:#625b70}</style></head><body><h1>' + escapeHtml(card.projectTitle) + ' - scorekaart</h1><p><strong>Leerlingen:</strong> ' + escapeHtml(card.students) + '<br><strong>Klas:</strong> ' + escapeHtml(card.className) + '<br><strong>Datum:</strong> ' + escapeHtml(card.date) + '</p><h2>Score: ' + card.total + '/' + card.max + ' - ' + card.percent + '% - ' + escapeHtml(card.score10) + '/10</h2><table><thead><tr><th>Criterium</th><th>Score</th><th>Label</th><th>Waarop gelet?</th></tr></thead><tbody>' + rows + '</tbody></table><h2>Notities</h2><p>' + escapeHtml(card.notes || "-") + '</p><h2>Wat ging goed? Wat kan beter?</h2><p>' + escapeHtml(card.nextStep || "-") + '</p><p class="muted">&copy; 2026 Robbe Wulgaert. Alle rechten voorbehouden.</p></body></html>'; }
+    function downloadCard(card = currentCard()) { downloadFile(slug(PROJECT.shortTitle + '-' + card.students + '-' + card.date) + '.html', scoreCardHtml(card), 'text/html;charset=utf-8'); }
+    function csvValue(value) { const text = String(value ?? ""); return '"' + text.replaceAll('"', '""') + '"'; }
+    function exportCsv() { const cards = loadCards(); if (!cards.length) { alert("Er zijn nog geen scorekaarten om te exporteren."); return; } const header = ["project", "datum", "klas", "leerlingen", "totaal", "max", "percentage", "score_op_10", "niveau", "notities", "wat_ging_goed_wat_kan_beter", ...PROJECT.criteria.map((criterion) => criterion.name)]; const rows = cards.map((card) => [card.projectTitle, card.date, card.className, card.students, card.total, card.max, card.percent, card.score10, card.level, card.notes, card.nextStep, ...PROJECT.criteria.map((criterion, index) => card.scores?.[index]?.score ?? "")]); const csv = [header, ...rows].map((row) => row.map(csvValue).join(";")).join("\n"); downloadFile(slug(PROJECT.shortTitle + '-klasoverzicht') + '.csv', '\uFEFF' + csv, 'text/csv;charset=utf-8'); }
+    function exportJson() { const cards = loadCards(); downloadFile(slug(PROJECT.shortTitle + '-scorekaarten') + '.json', JSON.stringify({ project: PROJECT, cards }, null, 2), 'application/json;charset=utf-8'); }
+    function importJsonFile(file) { if (!file) return; const reader = new FileReader(); reader.onload = () => { try { const parsed = JSON.parse(String(reader.result || "{}")); const incoming = Array.isArray(parsed) ? parsed : parsed.cards; if (!Array.isArray(incoming)) throw new Error("Geen scorekaarten gevonden."); const existing = loadCards(); const byId = new Map(existing.map((card) => [card.id, card])); incoming.forEach((card) => { if (card && card.projectId === PROJECT.id && card.id) byId.set(card.id, card); }); saveCards(Array.from(byId.values()).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))); renderSavedCards(); } catch (error) { alert("Dit JSON-bestand past niet bij deze evaluatiepagina."); } }; reader.readAsText(file); }
+    function showClassDrawer() { drawerToggle.checked = true; window.requestAnimationFrame(() => { document.body.classList.add("drawer-open"); drawer.classList.add("is-open"); drawerBackdrop.classList.add("is-visible"); drawer.setAttribute("aria-hidden", "false"); drawer.focus({ preventScroll: true }); }); renderSavedCards(); }
+    function hideClassDrawer() { drawerToggle.checked = false; document.body.classList.remove("drawer-open"); drawer.classList.remove("is-open"); drawerBackdrop.classList.remove("is-visible"); drawer.setAttribute("aria-hidden", "true"); }
+    rubric.addEventListener("click", (event) => { const button = event.target.closest(".score-button"); if (!button) return; state.scores[Number(button.dataset.index)] = Number(button.dataset.score); updateScore(); });
+    savedCardsBody.addEventListener("click", (event) => { const button = event.target.closest("button[data-action]"); if (!button) return; const id = button.dataset.id; const cards = loadCards(); const card = cards.find((item) => item.id === id); if (button.dataset.action === "load" && card) applyCard(card); if (button.dataset.action === "download" && card) downloadCard(card); if (button.dataset.action === "delete" && confirm("Deze scorekaart verwijderen?")) deleteCard(id); });
+    $("#saveCard").addEventListener("click", saveCurrentCard); $("#downloadCard").addEventListener("click", () => downloadCard(currentCard())); $("#newCard").addEventListener("click", resetForm); $("#openClassDrawer").addEventListener("click", (event) => { event.preventDefault(); showClassDrawer(); }); $("#openClassDrawer").addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); showClassDrawer(); } }); $("#closeClassDrawer").addEventListener("click", (event) => { event.preventDefault(); hideClassDrawer(); }); $("#closeClassDrawer").addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); hideClassDrawer(); } }); drawerBackdrop.addEventListener("click", (event) => { event.preventDefault(); hideClassDrawer(); }); document.addEventListener("keydown", (event) => { if (event.key === "Escape") hideClassDrawer(); }); $("#exportCsv").addEventListener("click", exportCsv); $("#exportJson").addEventListener("click", exportJson); $("#importJsonButton").addEventListener("click", () => $("#importJson").click()); $("#importJson").addEventListener("change", (event) => importJsonFile(event.target.files[0])); $("#clearAll").addEventListener("click", () => { if (!confirm("Alle scorekaarten voor dit project wissen?")) return; saveCards([]); resetForm(); renderSavedCards(); });
+    renderRubric(); $("#dateInput").value = todayIso(); updateScore(); renderSavedCards();
+  </script>
+</body>
+</html>
