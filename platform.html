@@ -6,6 +6,9 @@
 
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="shortcut icon" type="image/png" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
   <title>Platform Wind</title>
   <!--
     Platform Wind - project wind
@@ -79,7 +82,16 @@ body > header:not(.site-header):not(.app-header):not(.topbar) {
   backdrop-filter: blur(14px);
 }
 .app-page .app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
   padding: 14px clamp(18px, 4vw, 34px);
+}
+.app-page .project-title {
+  flex: 1 1 260px;
+  min-width: min(100%, 240px);
 }
 body > header.topbar,
 body > header:not(.site-header):not(.app-header):not(.topbar) {
@@ -88,6 +100,8 @@ body > header:not(.site-header):not(.app-header):not(.topbar) {
 }
 .app-page .app-header h1 {
   color: var(--platform-ink);
+  font-size: clamp(1.35rem, 2vw, 1.8rem);
+  line-height: 1.08;
   letter-spacing: 0;
 }
 .app-page .app-header .eyebrow {
@@ -116,6 +130,10 @@ header .app-actions {
   justify-content: flex-end;
   gap: 0.65rem;
   flex-wrap: wrap;
+}
+.app-page .project-actions {
+  flex: 2 1 520px;
+  min-width: min(100%, 320px);
 }
 .app-page .header-actions .primary-button,
 .app-page .header-actions .secondary-button,
@@ -188,6 +206,7 @@ header .app-actions #btn-pdf:hover {
   background: #ffffff;
   color: var(--platform-brand-dark);
   font-weight: 900;
+  white-space: nowrap;
   box-shadow: var(--platform-shadow);
 }
 body > header .tabs {
@@ -219,6 +238,23 @@ body > header .tab.active {
 .topbar .exercise-btn.current {
   box-shadow: 0 0 0 3px rgba(82, 0, 255, 0.14), var(--platform-shadow);
 }
+@media (max-width: 900px) {
+  .app-page .app-header {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    padding: 12px 18px;
+  }
+  .app-page .project-title,
+  .app-page .project-actions {
+    width: 100%;
+    min-width: 0;
+    flex: none;
+  }
+  .app-page .project-actions {
+    justify-content: flex-start;
+  }
+}
 @media (max-width: 760px) {
   .app-page .header-actions,
   .topbar .toolbar,
@@ -232,15 +268,47 @@ body > header .tab.active {
     min-width: 0;
   }
 }
+@media (max-width: 640px) {
+  .app-page .project-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .app-page .project-actions .language-toggle,
+  .app-page .project-actions .status-pill {
+    grid-column: span 2;
+  }
+  .app-page .project-actions > a,
+  .app-page .project-actions > button,
+  .app-page .project-actions > span {
+    width: 100%;
+  }
+}
+@media (max-width: 460px) {
+  .app-page .project-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .app-page .project-actions .language-toggle,
+  .app-page .project-actions .status-pill {
+    grid-column: span 2;
+  }
+  .app-page .project-actions .primary-button,
+  .app-page .project-actions .secondary-button,
+  .app-page .project-actions .ghost-button {
+    min-height: 42px;
+    line-height: 1.15;
+    text-align: center;
+    white-space: normal;
+  }
+}
 </style>
 </head>
 <body class="app-page">
-  <header class="app-header">
-    <div>
+  <header class="app-header project-header">
+    <div class="project-title">
       <p class="eyebrow">Project Wind</p>
       <h1>Platform Wind</h1>
     </div>
-    <div class="header-actions">
+    <div class="header-actions project-actions" aria-label="Platformacties">
       
       <div class="language-toggle" role="group" aria-label="Taalkeuze">
         <button type="button" class="is-active" data-language-choice="nl" aria-pressed="true">NL</button>
@@ -514,9 +582,11 @@ body > header .tab.active {
   "Taalkeuze": "Language selection",
   "Evaluatie": "Evaluation",
   "Startpagina": "Start page",
+  "Platformacties": "Platform actions",
   "Start platform": "Start platform",
   "Start leerplatform": "Start learning platform",
   "Niet verbonden": "Not connected",
+  "Project Wind": "Project Wind",
   "Verbind": "Connect",
   "Verbinden": "Connecting",
   "Bouw": "Build",
@@ -763,10 +833,10 @@ body > header .tab.active {
   let translationScheduled = false;
   let originalTitle = document.title;
   let originalDescription = null;
-  const normalize = (value) => String(value || "").replace(/s+/g, " ").trim();
+  const normalize = (value) => String(value || "").replace(/\s+/g, " ").trim();
   function preserveOuterWhitespace(original, translated) {
-    const start = String(original).match(/^s*/)?.[0] || "";
-    const end = String(original).match(/s*$/)?.[0] || "";
+    const start = String(original).match(/^\s*/)?.[0] || "";
+    const end = String(original).match(/\s*$/)?.[0] || "";
     return start + translated + end;
   }
   function translateKey(key) {
