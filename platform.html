@@ -367,7 +367,11 @@ body > header .tab.active {
       <div class="checklist" id="setup-checklist">
         <label><input type="checkbox" /> GND is aangesloten.</label>
         <label><input type="checkbox" /> Draden zitten veilig vast en zijn aangesloten.</label>
-        <label><input type="checkbox" /> De micro:bit heeft de correcte code gekregen.</label>
+        <label class="steam-code-check-item">
+          <input type="checkbox" />
+          <span>De micro:bit heeft de correcte code gekregen.</span>
+          <button id="btn-code-help" class="steam-code-help-button" type="button" aria-label="Toon waar de projectcode staat" title="Toon waar de projectcode staat">?</button>
+        </label>
       </div>
     </section>
 
@@ -572,6 +576,16 @@ body > header .tab.active {
     </form>
   </div>
 
+  <div id="code-help-modal" class="overlay hidden code-help-overlay" role="dialog" aria-modal="true" aria-labelledby="code-help-title">
+    <article class="modal steam-code-modal">
+      <button id="btn-close-code-help" class="close-button" type="button" aria-label="Sluit codehulp">x</button>
+      <p class="eyebrow">Code uploaden</p>
+      <h2 id="code-help-title">Waar vind ik de micro:bit-code?</h2>
+      <p>Deze opstelling werkt pas wanneer de micro:bit de juiste projectcode heeft gekregen. Je vindt de code tussen de andere bronbestanden.</p>
+      <a class="steam-code-link" href="https://github.com/RobbeW/projectwind" target="_blank" rel="noopener noreferrer">Open RobbeW/projectwind op GitHub</a>
+    </article>
+  </div>
+
   <footer class="app-footer">
     <p>Auteur: Robbe Wulgaert Â· AI in de Klas Â· robbewulgaert.be Â· Â© 2026 Robbe Wulgaert. Alle rechten voorbehouden.</p>
   </footer>
@@ -701,6 +715,12 @@ body > header .tab.active {
   "GND is aangesloten.": "GND is connected.",
   "Draden zitten veilig vast en zijn aangesloten.": "Wires are safely fixed and connected.",
   "De micro:bit heeft de correcte code gekregen.": "The micro:bit has received the correct code.",
+  "Toon waar de projectcode staat": "Show where the project code is",
+  "Code uploaden": "Upload code",
+  "Waar vind ik de micro:bit-code?": "Where can I find the micro:bit code?",
+  "Deze opstelling werkt pas wanneer de micro:bit de juiste projectcode heeft gekregen. Je vindt de code tussen de andere bronbestanden.": "This setup only works after the micro:bit has received the correct project code. You can find the code with the other source files.",
+  "Open RobbeW/projectwind op GitHub": "Open RobbeW/projectwind on GitHub",
+  "Sluit codehulp": "Close code help",
   "Nulpunt vastleggen": "Set zero point",
   "Verbind eerst de micro:bit. Laat de generator stilstaan en leg dan het nulpunt vast. De app trekt deze kleine offset af van latere metingen.": "Connect the micro:bit first. Keep the generator still and then set the zero point. The app subtracts this small offset from later measurements.",
   "Verbind micro:bit": "Connect micro:bit",

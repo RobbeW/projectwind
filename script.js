@@ -34,6 +34,9 @@ window.addEventListener('DOMContentLoaded', () => {
     btnHelp: $('btn-help'),
     btnCloseHelp: $('btn-close-help'),
     overlayHelp: $('overlay-help'),
+    btnCodeHelp: $('btn-code-help'),
+    btnCloseCodeHelp: $('btn-close-code-help'),
+    codeHelpModal: $('code-help-modal'),
     btnConnect: $('btn-connect'),
     btnDemo: $('btn-demo'),
     btnNewTrial: $('btn-new-trial'),
@@ -124,6 +127,12 @@ window.addEventListener('DOMContentLoaded', () => {
     els.btnCloseSchema.addEventListener('click', () => closeOverlay(els.overlaySchema));
     els.btnHelp.addEventListener('click', () => openOverlay(els.overlayHelp));
     els.btnCloseHelp.addEventListener('click', () => closeOverlay(els.overlayHelp));
+    els.btnCodeHelp.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      openOverlay(els.codeHelpModal);
+    });
+    els.btnCloseCodeHelp.addEventListener('click', () => closeOverlay(els.codeHelpModal));
     els.btnCancel.addEventListener('click', () => closeOverlay(els.reportModal));
 
     els.btnConnect.addEventListener('click', connectSerial);
