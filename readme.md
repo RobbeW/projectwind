@@ -102,7 +102,7 @@ In de projectmap staat ook `microbit_wind_turbine.2.0.0.hex`. Voor klasgebruik i
 
 ## Privacy en opslag
 
-De website gebruikt geen server en geen leerlingenaccounts. Meetgegevens blijven in de browser. Alleen wanneer een leerling zelf een CSV of PDF downloadt, wordt er een bestand op het toestel bewaard.
+De website gebruikt geen server en geen leerlingenaccounts. Het platform bewaart ingevulde antwoorden en meetreeksen automatisch in `localStorage` van dezelfde browser, zodat een verversing of gesloten tabblad niet meteen alle klasmetingen wist. Alleen wanneer een leerling zelf een CSV of PDF downloadt, wordt er een los bestand op het toestel bewaard.
 
 ## Voor publicatie op GitHub Pages
 

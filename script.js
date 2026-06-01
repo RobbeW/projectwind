@@ -83,6 +83,8 @@ window.addEventListener('DOMContentLoaded', () => {
   const BAUD_RATE = 115200;
   const MAX_LIVE_POINTS = 220;
   const CHART_COLORS = ['#5200FF', '#00A3A3', '#FFB000', '#D0006F', '#7A3CFF', '#008060', '#FF6B00', '#475569'];
+  const PLATFORM_STORAGE_KEY = 'aiindeklas:projectwind:platform:v1';
+  const AUTOSAVE_DELAY_MS = 600;
 
   const state = {
     port: null,
@@ -99,10 +101,12 @@ window.addEventListener('DOMContentLoaded', () => {
     latestPoint: null,
     trials: [],
     activeTrial: null,
+    autosaveFailed: false,
   };
 
   let liveChart = null;
   let comparisonChart = null;
+  let autosaveTimer = null;
 
   initialize();
 
@@ -110,16 +114,26 @@ window.addEventListener('DOMContentLoaded', () => {
     updateCompatibilityNotice();
     createCharts();
     bindEvents();
-    createNewTrial({ resetForm: true });
+    const restored = restoreSavedState();
+    if (!restored) {
+      createNewTrial({ resetForm: true, skipAutosave: true });
+    }
     updateCalibrationDisplay();
     updateBatteryModelText();
-    updateDiagnostics('Nog geen data ontvangen.', [
-      'Verwachte seriële regel: tijd_ms, spanning_V, stroom_A.',
-      'Gebruik Chrome of Edge via HTTPS, GitHub Pages of localhost voor WebSerial.',
-      'Geen hardware beschikbaar? Start de demomodus.',
-    ]);
+    if (restored) {
+      updateDiagnostics('Vorige voortgang hersteld uit deze browser.', [
+        'Meet opnieuw verbinden blijft nodig, maar de bewaarde proeven en antwoorden staan terug klaar.',
+      ]);
+    } else {
+      updateDiagnostics('Nog geen data ontvangen.', [
+        'Verwachte seriële regel: tijd_ms, spanning_V, stroom_A.',
+        'Gebruik Chrome of Edge via HTTPS, GitHub Pages of localhost voor WebSerial.',
+        'Geen hardware beschikbaar? Start de demomodus.',
+      ]);
+    }
     updateWorkflowState();
     updateCalibrationControl();
+    savePlatformState();
   }
 
   function bindEvents() {
@@ -166,6 +180,7 @@ window.addEventListener('DOMContentLoaded', () => {
         updateActiveTrialFromForm();
         renderTrialSummaries();
         updateComparisonChart();
+        scheduleAutosave();
       });
     });
 
@@ -176,9 +191,20 @@ window.addEventListener('DOMContentLoaded', () => {
       els.inputDependent,
       els.inputConclusion,
       els.inputReflection,
-    ].forEach((input) => input.addEventListener('input', updateWorkflowState));
+      els.inputCount,
+      els.inputNames,
+    ].forEach((input) => input.addEventListener('input', () => {
+      updateWorkflowState();
+      scheduleAutosave();
+    }));
 
-    els.setupChecklist.addEventListener('change', updateWorkflowState);
+    els.setupChecklist.addEventListener('change', () => {
+      updateWorkflowState();
+      scheduleAutosave();
+    });
+
+    window.addEventListener('pagehide', () => savePlatformState());
+    window.addEventListener('beforeunload', () => savePlatformState());
 
     els.workflowLinks.forEach((link) => {
       link.addEventListener('click', () => {
@@ -339,6 +365,234 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function restoreSavedState() {
+    const saved = loadSavedState();
+    if (!saved) {
+      return false;
+    }
+
+    const restoredTrials = Array.isArray(saved.trials)
+      ? saved.trials.map((trial, index) => hydrateTrial(trial, index + 1)).filter(Boolean)
+      : [];
+
+    state.trials = restoredTrials.length ? restoredTrials : [makeEmptyTrial(1, defaultVariableForIndex(1))];
+    state.activeTrial = state.trials.find((trial) => trial.id === saved.activeTrialId) || state.trials[0];
+    state.calibration = {
+      voltage: numberOr(saved.calibration?.voltage, 0),
+      current: numberOr(saved.calibration?.current, 0),
+    };
+    state.calibrated = Boolean(saved.calibrated);
+    state.latestPoint = state.activeTrial?.data.at(-1) || null;
+    state.latestRaw = state.latestPoint
+      ? {
+          deviceMs: state.latestPoint.deviceMs,
+          rawVoltage: state.latestPoint.rawVoltage,
+          rawCurrent: state.latestPoint.rawCurrent,
+          source: state.latestPoint.source,
+        }
+      : null;
+
+    applyStoredForm(saved.form);
+    applyActiveTrialToForm();
+    renderTrialSummaries();
+    updateComparisonChart();
+    rebuildLiveChartFromActiveTrial();
+    if (state.latestPoint) {
+      updateLiveDisplay(state.latestPoint);
+    } else {
+      updateLiveDisplayEmpty();
+    }
+    return true;
+  }
+
+  function loadSavedState() {
+    try {
+      const raw = localStorage.getItem(PLATFORM_STORAGE_KEY);
+      if (!raw) {
+        return null;
+      }
+      const parsed = JSON.parse(raw);
+      return parsed?.version === 1 ? parsed : null;
+    } catch (error) {
+      console.warn('Kon opgeslagen platformvoortgang niet laden:', error);
+      return null;
+    }
+  }
+
+  function scheduleAutosave() {
+    if (autosaveTimer) {
+      window.clearTimeout(autosaveTimer);
+    }
+    autosaveTimer = window.setTimeout(() => {
+      autosaveTimer = null;
+      savePlatformState();
+    }, AUTOSAVE_DELAY_MS);
+  }
+
+  function savePlatformState() {
+    if (autosaveTimer) {
+      window.clearTimeout(autosaveTimer);
+      autosaveTimer = null;
+    }
+
+    try {
+      localStorage.setItem(PLATFORM_STORAGE_KEY, JSON.stringify(serializePlatformState()));
+      state.autosaveFailed = false;
+    } catch (error) {
+      if (!state.autosaveFailed) {
+        state.autosaveFailed = true;
+        updateDiagnostics('Automatisch bewaren lukt niet in deze browsercontext.', [
+          'Download zeker een CSV of PDF voordat je de pagina sluit.',
+          String(error),
+        ]);
+      }
+    }
+  }
+
+  function serializePlatformState() {
+    if (state.activeTrial) {
+      updateActiveTrialFromForm();
+    }
+
+    return {
+      version: 1,
+      savedAt: new Date().toISOString(),
+      calibrated: state.calibrated,
+      calibration: state.calibration,
+      activeTrialId: state.activeTrial?.id || null,
+      form: {
+        question: els.inputQuestion.value,
+        hypothesis: els.inputHypothesis.value,
+        independent: els.inputIndependent.value,
+        dependent: els.inputDependent.value,
+        conclusion: els.inputConclusion.value,
+        reflection: els.inputReflection.value,
+        studentCount: els.inputCount.value,
+        studentNames: els.inputNames.value,
+        setupChecked: [...els.setupChecklist.querySelectorAll('input[type="checkbox"]')].map((input) => input.checked),
+      },
+      trials: state.trials.map(serializeTrial),
+    };
+  }
+
+  function serializeTrial(trial) {
+    return {
+      id: trial.id,
+      index: trial.index,
+      name: trial.name,
+      variableType: trial.variableType,
+      variableValue: trial.variableValue,
+      data: trial.data.map(serializePoint),
+      energyWh: trial.energyWh,
+      startDeviceMs: trial.startDeviceMs,
+      endDeviceMs: trial.endDeviceMs,
+      lastDeviceMs: trial.lastDeviceMs,
+      startedAt: trial.startedAt ? trial.startedAt.toISOString() : null,
+      endedAt: trial.endedAt ? trial.endedAt.toISOString() : null,
+    };
+  }
+
+  function serializePoint(point) {
+    return [
+      point.deviceMs,
+      point.elapsedMs,
+      point.receivedAt,
+      point.rawVoltage,
+      point.rawCurrent,
+      point.voltage,
+      point.current,
+      point.power,
+      point.energyWh,
+      point.dtMs,
+      point.source,
+    ];
+  }
+
+  function hydrateTrial(savedTrial, fallbackIndex) {
+    if (!savedTrial || typeof savedTrial !== 'object') {
+      return null;
+    }
+
+    const index = Math.max(1, Math.floor(numberOr(savedTrial.index, fallbackIndex)));
+    const trial = makeEmptyTrial(index, defaultVariableForIndex(index));
+    trial.id = String(savedTrial.id || trial.id);
+    trial.name = String(savedTrial.name || `Proef ${index}`);
+    trial.variableType = String(savedTrial.variableType || defaultVariableForIndex(index));
+    trial.variableValue = String(savedTrial.variableValue || '');
+    trial.data = Array.isArray(savedTrial.data) ? savedTrial.data.map(hydratePoint).filter(Boolean) : [];
+    trial.energyWh = numberOr(savedTrial.energyWh, trial.data.at(-1)?.energyWh || 0);
+    trial.startDeviceMs = nullableNumber(savedTrial.startDeviceMs);
+    trial.endDeviceMs = nullableNumber(savedTrial.endDeviceMs);
+    trial.lastDeviceMs = nullableNumber(savedTrial.lastDeviceMs);
+    trial.startedAt = parseStoredDate(savedTrial.startedAt);
+    trial.endedAt = parseStoredDate(savedTrial.endedAt);
+    trial.summary = trial.data.length ? summarizeTrial(trial) : null;
+    return trial;
+  }
+
+  function hydratePoint(savedPoint) {
+    if (Array.isArray(savedPoint)) {
+      return {
+        deviceMs: numberOr(savedPoint[0], 0),
+        elapsedMs: numberOr(savedPoint[1], 0),
+        receivedAt: numberOr(savedPoint[2], Date.now()),
+        rawVoltage: numberOr(savedPoint[3], 0),
+        rawCurrent: numberOr(savedPoint[4], 0),
+        voltage: numberOr(savedPoint[5], 0),
+        current: numberOr(savedPoint[6], 0),
+        power: numberOr(savedPoint[7], 0),
+        energyWh: numberOr(savedPoint[8], 0),
+        dtMs: numberOr(savedPoint[9], 0),
+        source: String(savedPoint[10] || 'restored'),
+      };
+    }
+
+    if (!savedPoint || typeof savedPoint !== 'object') {
+      return null;
+    }
+
+    return {
+      deviceMs: numberOr(savedPoint.deviceMs, 0),
+      elapsedMs: numberOr(savedPoint.elapsedMs, 0),
+      receivedAt: numberOr(savedPoint.receivedAt, Date.now()),
+      rawVoltage: numberOr(savedPoint.rawVoltage, 0),
+      rawCurrent: numberOr(savedPoint.rawCurrent, 0),
+      voltage: numberOr(savedPoint.voltage, 0),
+      current: numberOr(savedPoint.current, 0),
+      power: numberOr(savedPoint.power, 0),
+      energyWh: numberOr(savedPoint.energyWh, 0),
+      dtMs: numberOr(savedPoint.dtMs, 0),
+      source: String(savedPoint.source || 'restored'),
+    };
+  }
+
+  function applyStoredForm(form) {
+    if (!form || typeof form !== 'object') {
+      return;
+    }
+
+    els.inputQuestion.value = String(form.question || '');
+    els.inputHypothesis.value = String(form.hypothesis || '');
+    els.inputIndependent.value = String(form.independent || els.inputIndependent.value);
+    els.inputDependent.value = String(form.dependent || els.inputDependent.value);
+    els.inputConclusion.value = String(form.conclusion || '');
+    els.inputReflection.value = String(form.reflection || '');
+    els.inputCount.value = String(form.studentCount || els.inputCount.value);
+    els.inputNames.value = String(form.studentNames || '');
+
+    const checks = Array.isArray(form.setupChecked) ? form.setupChecked : [];
+    [...els.setupChecklist.querySelectorAll('input[type="checkbox"]')].forEach((input, index) => {
+      input.checked = Boolean(checks[index]);
+    });
+  }
+
+  function applyActiveTrialToForm() {
+    const trial = ensureActiveTrial();
+    els.trialName.value = trial.name;
+    els.trialVariable.value = trial.variableType;
+    els.trialValue.value = trial.variableValue;
+  }
+
   async function connectSerial() {
     if (!('serial' in navigator)) {
       alert('WebSerial is niet beschikbaar in deze browser. Gebruik Chrome of Edge, of start de demomodus.');
@@ -437,6 +691,7 @@ window.addEventListener('DOMContentLoaded', () => {
     renderTrialSummaries();
     updateComparisonChart();
     updateWorkflowState();
+    savePlatformState();
   }
 
   function startSerialLoop() {
@@ -607,6 +862,7 @@ window.addEventListener('DOMContentLoaded', () => {
     renderTrialSummaries();
     runReadingDiagnostics(trial, point);
     updateWorkflowState();
+    scheduleAutosave();
   }
 
   function calibrateZero() {
@@ -623,6 +879,7 @@ window.addEventListener('DOMContentLoaded', () => {
       `Stroom offset: ${state.calibration.current.toFixed(4)} A`,
     ]);
     updateWorkflowState();
+    scheduleAutosave();
   }
 
   function resetCalibration() {
@@ -631,6 +888,7 @@ window.addEventListener('DOMContentLoaded', () => {
     updateCalibrationDisplay();
     updateDiagnostics('Kalibratie gewist.', ['Nieuwe metingen worden zonder offsetcorrectie verwerkt.']);
     updateWorkflowState();
+    scheduleAutosave();
   }
 
   function updateCalibrationDisplay() {
@@ -700,6 +958,25 @@ window.addEventListener('DOMContentLoaded', () => {
     liveChart.update('none');
   }
 
+  function rebuildLiveChartFromActiveTrial() {
+    if (!liveChart) {
+      return;
+    }
+
+    liveChart.data.datasets.forEach((dataset) => {
+      dataset.data = [];
+    });
+
+    const points = state.activeTrial?.data.slice(-MAX_LIVE_POINTS) || [];
+    points.forEach((point) => {
+      const x = point.elapsedMs / 1000;
+      liveChart.data.datasets[0].data.push({ x, y: point.voltage });
+      liveChart.data.datasets[1].data.push({ x, y: point.current });
+      liveChart.data.datasets[2].data.push({ x, y: point.power });
+    });
+    liveChart.update('none');
+  }
+
   function updateComparisonChart() {
     if (!comparisonChart) {
       return;
@@ -718,26 +995,12 @@ window.addEventListener('DOMContentLoaded', () => {
     comparisonChart.update('none');
   }
 
-  function createNewTrial({ resetForm }) {
+  function createNewTrial({ resetForm, skipAutosave = false }) {
     if (state.isMeasuring) {
       stopMeasurement();
     }
     const index = state.trials.length + 1;
-    const trial = {
-      id: `trial-${Date.now()}-${Math.round(Math.random() * 10000)}`,
-      index,
-      name: `Proef ${index}`,
-      variableType: resetForm ? defaultVariableForIndex(index) : els.trialVariable.value,
-      variableValue: '',
-      data: [],
-      energyWh: 0,
-      startDeviceMs: null,
-      endDeviceMs: null,
-      lastDeviceMs: null,
-      startedAt: null,
-      endedAt: null,
-      summary: null,
-    };
+    const trial = makeEmptyTrial(index, resetForm ? defaultVariableForIndex(index) : els.trialVariable.value);
     state.trials.push(trial);
     state.activeTrial = trial;
     els.trialName.value = trial.name;
@@ -748,6 +1011,27 @@ window.addEventListener('DOMContentLoaded', () => {
     renderTrialSummaries();
     updateComparisonChart();
     updateWorkflowState();
+    if (!skipAutosave) {
+      scheduleAutosave();
+    }
+  }
+
+  function makeEmptyTrial(index, variableType) {
+    return {
+      id: `trial-${Date.now()}-${Math.round(Math.random() * 10000)}`,
+      index,
+      name: `Proef ${index}`,
+      variableType,
+      variableValue: '',
+      data: [],
+      energyWh: 0,
+      startDeviceMs: null,
+      endDeviceMs: null,
+      lastDeviceMs: null,
+      startedAt: null,
+      endedAt: null,
+      summary: null,
+    };
   }
 
   function defaultVariableForIndex(index) {
@@ -1130,6 +1414,24 @@ window.addEventListener('DOMContentLoaded', () => {
 
   function clamp(value, min, max) {
     return Math.min(Math.max(value, min), max);
+  }
+
+  function numberOr(value, fallback) {
+    const number = Number(value);
+    return Number.isFinite(number) ? number : fallback;
+  }
+
+  function nullableNumber(value) {
+    const number = Number(value);
+    return Number.isFinite(number) ? number : null;
+  }
+
+  function parseStoredDate(value) {
+    if (!value) {
+      return null;
+    }
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
   }
 
   function escapeHtml(value) {
