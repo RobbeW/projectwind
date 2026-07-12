@@ -2,26 +2,32 @@
 
 :root {
   color-scheme: light;
-  --bg: #f4f6f8;
-  --surface: #ffffff;
+  --bg: #F8F7F3;
+  --surface: #FFFFFF;
   --surface-strong: #f1ecff;
-  --text: #17212f;
-  --muted: #657286;
-  --line: #d8e0ea;
+  --text: #1D1930;
+  --muted: #625B70;
+  --line: #E2DDEA;
   --primary: #5200FF;
-  --primary-dark: #3d00bf;
+  --primary-dark: #3700B3;
   --success: #5200FF;
   --danger: #d0006f;
   --warning: #ffb000;
   --shadow: 0 12px 34px rgba(15, 23, 42, 0.08);
   --brand: #5200FF;
   --brand-dark: #3700B3;
-  --brand-soft: #f7f3ff;
-  --accent: #3dffd0;
+  --brand-soft: #F7F3FF;
+  --brand-softer: #F7F3FF;
+  --accent: #3DFFD0;
   --ink: #160033;
   --max-width: 1180px;
   --soft-shadow: 0 18px 55px rgba(32, 20, 54, 0.1);
-  --font-body: Inter, Roboto, "Segoe UI", Arial, sans-serif;
+  --font-body: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --motion-fast: 150ms;
+  --motion-medium: 260ms;
+  --motion-slow: 520ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --font-size-hero: clamp(2.45rem, 7vw, 5.8rem);
   --font-size-section-title: clamp(1.8rem, 4vw, 3.25rem);
   --font-size-lead: clamp(1.05rem, 2vw, 1.32rem);
@@ -41,6 +47,11 @@ body {
   font-family: var(--font-body);
   background: var(--bg);
   color: var(--text);
+}
+
+h1, h2, h3, h4, h5, h6,
+label, button, th, td {
+  letter-spacing: 0;
 }
 
 a {
@@ -66,19 +77,11 @@ button:disabled {
 .app-header,
 /* Delphi-style landing alignment */
 :root {
-  --brand-dark: #3a00b8;
-  --brand-softer: #f7f3ff;
-  --accent: #03ddef;
-  --line: #e2ddea;
-  --bg: #f8f7f3;
   --card-shadow: 0 10px 30px rgba(32, 20, 54, 0.08);
-  --font-body: Roboto, Inter, "Segoe UI", Arial, sans-serif;
 }
 
 .landing-page {
-  background:
-    radial-gradient(circle at top left, rgba(82, 0, 255, 0.09), transparent 34rem),
-    linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
+  background: var(--bg);
 }
 
 .site-header {
@@ -98,7 +101,7 @@ button:disabled {
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+  background: var(--brand);
   box-shadow: 0 12px 24px rgba(82, 0, 255, 0.24);
 }
 
@@ -243,7 +246,7 @@ button:disabled {
   border: 1.5px dashed rgba(82, 0, 255, 0.28);
   border-radius: 24px;
   padding: 18px;
-  background: linear-gradient(180deg, rgba(247, 243, 255, 0.92), rgba(255, 255, 255, 0.94));
+  background: var(--brand-soft);
 }
 
 .tree-branch::before {
@@ -288,8 +291,8 @@ button:disabled {
 }
 
 .tree-node.dodona {
-  background: linear-gradient(135deg, #ffffff, #dffff7);
-  border-color: rgba(3, 221, 239, 0.72);
+  background: #DFFFF7;
+  border-color: var(--accent);
 }
 
 .delphi-dodona-pair {
@@ -367,9 +370,7 @@ button:disabled {
 }
 
 .landing-page {
-  background:
-    radial-gradient(circle at top left, rgba(82, 0, 255, 0.09), transparent 34rem),
-    linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
+  background: var(--bg);
 }
 
 .site-header {
@@ -389,7 +390,7 @@ button:disabled {
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+  background: var(--brand);
   box-shadow: 0 12px 24px rgba(82, 0, 255, 0.24);
 }
 
@@ -853,8 +854,8 @@ textarea {
   left: 0;
   width: 100%;
   height: 0%;
-  background: linear-gradient(180deg, #9f7aff, #5200ff);
-  transition: height 0.5s ease;
+  background: var(--brand);
+  transition: height var(--motion-medium) var(--ease-standard);
 }
 
 #charge-percent {
@@ -962,8 +963,8 @@ th {
 }
 
 .landing-page {
-  background: #fbfaf7;
-  color: #1d1930;
+  background: var(--bg);
+  color: var(--text);
 }
 
 .skip-link {
@@ -1264,7 +1265,7 @@ th {
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: contain;
-  background: #f4f6f8;
+  background: var(--bg);
 }
 
 .schematic-frame figcaption {
@@ -1347,9 +1348,7 @@ th {
 }
 
 .landing-page {
-  background:
-    radial-gradient(circle at top left, rgba(82, 0, 255, 0.09), transparent 34rem),
-    linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
+  background: var(--bg);
 }
 
 .site-header {
@@ -1369,7 +1368,7 @@ th {
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+  background: var(--brand);
   box-shadow: 0 12px 24px rgba(82, 0, 255, 0.24);
 }
 
@@ -1555,10 +1554,8 @@ th {
   --primary-dark: var(--brand-dark);
   --success: var(--brand);
   --shadow: 0 12px 34px rgba(15, 23, 42, 0.08);
-  --font-body: Roboto, Inter, "Segoe UI", Arial, sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(82, 0, 255, 0.08), transparent 34rem),
-    linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
+  --font-body: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
 }
@@ -1629,6 +1626,69 @@ th {
   color: var(--brand-dark);
 }
 
+/* Smart Plants motion alignment: state changes remain clear without decorative loops. */
+@keyframes smartplants-soft-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes smartplants-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.btn,
+.menu-button,
+.primary-button,
+.secondary-button,
+.success-button,
+.danger-button,
+.ghost-button,
+.workflow-step,
+.tree-node,
+.step-card,
+.feature-card,
+.audience-card,
+input,
+select,
+textarea {
+  transition:
+    color var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard),
+    transform var(--motion-fast) var(--ease-standard);
+}
+
+.workflow-step:hover,
+.workflow-step:focus-visible {
+  transform: translateY(-2px);
+}
+
+.step-card:hover,
+.feature-card:hover,
+.audience-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--soft-shadow);
+}
+
+.overlay {
+  animation: smartplants-fade-in var(--motion-fast) var(--ease-standard);
+}
+
+.modal {
+  animation: smartplants-soft-rise var(--motion-medium) var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 .app-page .workflow-step.is-complete {
   border-color: var(--brand);
   background: var(--brand);
@@ -1678,9 +1738,9 @@ th {
 
 /* JS in de Klas platformheader alignment. */
 .app-page .app-header {
-  background: #fff;
+  background: var(--surface);
   color: var(--text);
-  border-bottom: 1.5px solid #eee;
+  border-bottom: 1.5px solid var(--line);
   box-shadow: none;
   padding: 0.8rem 1.2rem;
 }
@@ -1712,7 +1772,7 @@ th {
 .app-page .primary-button,
 .app-page .success-button {
   background: var(--brand);
-  color: #fff;
+  color: var(--surface);
   border-color: var(--brand);
   box-shadow: 0 2px 8px rgba(82, 0, 255, 0.10);
 }
@@ -1725,15 +1785,15 @@ th {
 
 .app-page .secondary-button,
 .app-page .ghost-button {
-  background: #fff;
+  background: var(--surface);
   color: var(--brand-dark);
   border: 1px solid rgba(82, 0, 255, 0.22);
 }
 
 .app-page .status-pill {
   min-height: 38px;
-  border-color: #ece6fa;
-  background: #fff;
+  border-color: var(--line);
+  background: var(--surface);
   color: var(--brand-dark);
   box-shadow: 0 2px 8px rgba(82, 0, 255, 0.06);
 }
@@ -1748,15 +1808,15 @@ th {
 
 .app-page .workflow-step {
   border-radius: 999px;
-  background: #fff;
+  background: var(--surface);
   color: var(--brand-dark);
 }
 
 .app-page .workflow-step.is-active {
   background: var(--brand);
-  color: #fff;
+  color: var(--surface);
   border-color: var(--brand);
-  box-shadow: 0 0 0 3px #ece6fa;
+  box-shadow: 0 0 0 3px var(--brand-soft);
 }
 
 .app-page #measurement > .toolbar {
@@ -1779,4 +1839,19 @@ th {
   .app-page #measurement #btn-stop {
     min-width: 0;
   }
+}
+
+/* Keep platform controls on the shared Smart Plants timing layer. */
+.app-page .primary-button,
+.app-page .secondary-button,
+.app-page .success-button,
+.app-page .danger-button,
+.app-page .ghost-button,
+.app-page .workflow-step {
+  transition:
+    color var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard),
+    transform var(--motion-fast) var(--ease-standard);
 }
