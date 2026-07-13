@@ -51,9 +51,6 @@
   outline: 3px solid rgba(61, 255, 208, 0.75);
   outline-offset: 2px;
 }
-@media (max-width: 760px) {
-  .language-toggle { order: 2; }
-}
 </style>
 </head>
 <body class="landing-page">
@@ -61,6 +58,9 @@
 
   <header class="site-header">
     <nav class="nav" aria-label="Hoofdnavigatie">
+      <button class="menu-button" id="menuButton" type="button" aria-label="Navigatiemenu openen" aria-expanded="false" aria-controls="navLinks">
+        <span class="menu-icon" aria-hidden="true"></span>
+      </button>
       <a class="brand-link" href="#top" aria-label="Project Wind">
         <span class="brand-mark">IW</span>
         <span class="brand-copy">
@@ -70,21 +70,19 @@
       </a>
 
       <div class="nav-links" id="navLinks">
-        <a href="#werking">Opdracht</a>
-        <a href="#leerlijn">Leerlijn</a>
-        <a href="#leerkrachten">Leerkrachten</a>
-      </div>
-
-      <div class="nav-actions">
-        <div class="language-toggle" role="group" aria-label="Taalkeuze">
-          <button type="button" class="is-active" data-language-choice="nl" aria-pressed="true">NL</button>
-          <button type="button" data-language-choice="en" aria-pressed="false">ENG</button>
+        <div class="nav-bookmarks">
+          <a href="#werking">Opdracht</a>
+          <a href="#leerlijn">Leerlijn</a>
+          <a href="#leerkrachten">Leerkrachten</a>
         </div>
-        <a class="btn btn-secondary" href="evaluatie.html">Evaluatie</a>
-        <a class="btn btn-primary" href="platform.html">Start platform</a>
-        <button class="menu-button" id="menuButton" type="button" aria-label="Menu openen" aria-expanded="false" aria-controls="navLinks">
-          Menu
-        </button>
+        <div class="nav-actions">
+          <div class="language-toggle" role="group" aria-label="Taalkeuze">
+            <button type="button" class="is-active" data-language-choice="nl" aria-pressed="true">NL</button>
+            <button type="button" data-language-choice="en" aria-pressed="false">ENG</button>
+          </div>
+          <a class="btn btn-secondary" href="evaluatie.html">Evaluatie</a>
+          <a class="btn btn-primary" href="platform.html">Start platform</a>
+        </div>
       </div>
     </nav>
   </header>
@@ -345,15 +343,19 @@
     const navLinks = document.getElementById("navLinks");
 
     if (menuButton && navLinks) {
-      const setMenuOpen = (isOpen, focusFirstLink = false) => {
+      const setMenuOpen = (isOpen, restoreFocus = false, focusFirstLink = false) => {
         navLinks.classList.toggle("is-open", isOpen);
         menuButton.setAttribute("aria-expanded", String(isOpen));
-        menuButton.setAttribute("aria-label", isOpen ? "Menu sluiten" : "Menu openen");
+        const isEnglish = document.documentElement.lang.startsWith("en");
+        menuButton.setAttribute("aria-label", isOpen
+          ? (isEnglish ? "Close navigation menu" : "Navigatiemenu sluiten")
+          : (isEnglish ? "Open navigation menu" : "Navigatiemenu openen"));
         if (focusFirstLink && isOpen) navLinks.querySelector("a")?.focus();
+        if (!isOpen && restoreFocus) menuButton.focus();
       };
 
       menuButton.addEventListener("click", () => {
-        setMenuOpen(menuButton.getAttribute("aria-expanded") !== "true", true);
+        setMenuOpen(menuButton.getAttribute("aria-expanded") !== "true", false, true);
       });
 
       navLinks.addEventListener("click", (event) => {
@@ -362,14 +364,17 @@
 
       document.addEventListener("keydown", (event) => {
         if (event.key === "Escape" && menuButton.getAttribute("aria-expanded") === "true") {
-          setMenuOpen(false);
-          menuButton.focus();
+          setMenuOpen(false, true);
         }
       });
 
       document.addEventListener("click", (event) => {
         if (menuButton.getAttribute("aria-expanded") !== "true") return;
         if (!menuButton.contains(event.target) && !navLinks.contains(event.target)) setMenuOpen(false);
+      });
+
+      window.addEventListener("resize", () => {
+        if (window.matchMedia("(min-width: 761px)").matches) setMenuOpen(false);
       });
     }
   </script>
@@ -382,6 +387,8 @@
   "Hoofdnavigatie": "Main navigation",
   "Paginaonderdelen": "Page sections",
   "Taalkeuze": "Language selection",
+  "Navigatiemenu openen": "Open navigation menu",
+  "Navigatiemenu sluiten": "Close navigation menu",
   "Evaluatie": "Evaluation",
   "Opdracht": "Assignment",
   "Werking": "How it works",
