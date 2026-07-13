@@ -1446,12 +1446,29 @@ th {
     flex-wrap: wrap;
   }
 
+  .brand-link {
+    min-width: 0;
+    flex: 1 1 14rem;
+  }
+
   .nav-links {
+    display: none;
     order: 3;
     width: 100%;
-    justify-content: flex-start;
-    overflow-x: auto;
     padding-top: 0.3rem;
+  }
+
+  .nav-links.is-open {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .nav-links a {
+    padding: 12px;
+  }
+
+  .menu-button {
+    display: inline-flex;
   }
 
   .landing-hero {
@@ -1507,20 +1524,6 @@ th {
     display: none;
   }
 
-  .nav-links {
-    display: none;
-    padding: 0.5rem 0 0.2rem;
-  }
-
-  .nav-links.is-open {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-
-  .menu-button {
-    display: inline-flex;
-  }
-
   .landing-hero {
     min-height: min(540px, calc(100svh - 112px));
   }
@@ -1529,13 +1532,19 @@ th {
     font-size: clamp(2.15rem, 13vw, 3.1rem);
   }
 
-  .btn {
+  .hero-actions .btn,
+  .cta-actions .btn {
     width: 100%;
   }
 
   .hero-actions,
   .cta-actions {
     width: 100%;
+  }
+
+  .nav-actions {
+    width: 100%;
+    justify-content: flex-end;
   }
 }
 

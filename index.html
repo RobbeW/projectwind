@@ -82,7 +82,7 @@
         </div>
         <a class="btn btn-secondary" href="evaluatie.html">Evaluatie</a>
         <a class="btn btn-primary" href="platform.html">Start platform</a>
-        <button class="menu-button" id="menuButton" type="button" aria-expanded="false" aria-controls="navLinks">
+        <button class="menu-button" id="menuButton" type="button" aria-label="Menu openen" aria-expanded="false" aria-controls="navLinks">
           Menu
         </button>
       </div>
@@ -344,17 +344,34 @@
     const menuButton = document.getElementById("menuButton");
     const navLinks = document.getElementById("navLinks");
 
-    menuButton?.addEventListener("click", () => {
-      const isOpen = navLinks.classList.toggle("is-open");
-      menuButton.setAttribute("aria-expanded", String(isOpen));
-    });
+    if (menuButton && navLinks) {
+      const setMenuOpen = (isOpen, focusFirstLink = false) => {
+        navLinks.classList.toggle("is-open", isOpen);
+        menuButton.setAttribute("aria-expanded", String(isOpen));
+        menuButton.setAttribute("aria-label", isOpen ? "Menu sluiten" : "Menu openen");
+        if (focusFirstLink && isOpen) navLinks.querySelector("a")?.focus();
+      };
 
-    navLinks?.addEventListener("click", (event) => {
-      if (event.target instanceof HTMLAnchorElement) {
-        navLinks.classList.remove("is-open");
-        menuButton.setAttribute("aria-expanded", "false");
-      }
-    });
+      menuButton.addEventListener("click", () => {
+        setMenuOpen(menuButton.getAttribute("aria-expanded") !== "true", true);
+      });
+
+      navLinks.addEventListener("click", (event) => {
+        if (event.target instanceof HTMLAnchorElement) setMenuOpen(false);
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && menuButton.getAttribute("aria-expanded") === "true") {
+          setMenuOpen(false);
+          menuButton.focus();
+        }
+      });
+
+      document.addEventListener("click", (event) => {
+        if (menuButton.getAttribute("aria-expanded") !== "true") return;
+        if (!menuButton.contains(event.target) && !navLinks.contains(event.target)) setMenuOpen(false);
+      });
+    }
   </script>
 <script id="language-toggle-script">
 (() => {
