@@ -1280,6 +1280,37 @@ th {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.privacy-license-list { display: grid; gap: 14px; margin-top: 28px; }
+.privacy-license-details { margin: 0; }
+.privacy-license-details summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--brand);
+  cursor: pointer;
+  font-size: 1.12rem;
+  font-weight: 900;
+  list-style: none;
+}
+.privacy-license-details summary::-webkit-details-marker { display: none; }
+.privacy-license-details summary::after {
+  content: "+";
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: #f7f3ff;
+  color: var(--brand);
+  font-size: 1.35rem;
+  line-height: 1;
+}
+.privacy-license-details[open] summary::after { content: "−"; }
+.privacy-license-content { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+.privacy-license-content p + p { margin-top: 12px; }
+
 .step-card,
 .feature-card,
 .audience-card {

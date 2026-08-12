@@ -14,6 +14,19 @@
   />
   <meta name="author" content="Robbe Wulgaert, AI in de Klas, robbewulgaert.be" />
   <meta name="copyright" content="Copyright (c) 2026 Robbe Wulgaert" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://robbew.github.io/projectwind/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="nl_BE" />
+  <meta property="og:site_name" content="AI in de Klas" />
+  <meta property="og:title" content="Project Wind" />
+  <meta property="og:description" content="Onderzoek windmolens met micro:bit, live metingen en PDF-rapportage, rechtstreeks in de browser." />
+  <meta property="og:url" content="https://robbew.github.io/projectwind/" />
+  <meta property="og:image" content="https://robbew.github.io/projectwind/media/Landing_Page_Photo.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Project Wind" />
+  <meta name="twitter:description" content="Onderzoek windmolens met micro:bit, live metingen en PDF-rapportage, rechtstreeks in de browser." />
+  <meta name="twitter:image" content="https://robbew.github.io/projectwind/media/Landing_Page_Photo.jpg" />
 
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="shortcut icon" type="image/png" href="favicon.png">
@@ -234,7 +247,7 @@
                 </a>
                 <a class="tree-node" href="https://robbew.github.io/delphi/" target="_blank" rel="noopener">
                   <strong>Delphi</strong>
-                  <span>licht oefenen in de browser.</span>
+                  <span>Python oefenen in de browser.</span>
                 </a>
               </div>
             </div>
@@ -289,17 +302,23 @@
       </article>
     </section>
 
-    <section class="section" id="privacy">
-      <p class="section-kicker">Privacy</p>
-      <h2 class="section-title">Geen accounts, geen serveropslag.</h2>
-      <div class="privacy-grid">
-        <article class="feature-card">
-          <h3 class="card-title">Privacyvriendelijk</h3>
-          <p class="card-copy">
-            De app draait lokaal in de browser. Meetgegevens blijven op het toestel en worden alleen
-            geëxporteerd wanneer een leerling zelf een CSV of PDF downloadt.
-          </p>
-        </article>
+    <section class="section" id="privacy-license">
+      <h2 class="section-title">Privacy en licentie</h2>
+      <div class="privacy-license-list">
+        <details class="feature-card privacy-license-details">
+          <summary>Privacy</summary>
+          <div class="privacy-license-content">
+            <p class="card-copy">Dit project gebruikt geen eigen analytics of advertentiecookies. Invoer, voortgang en meetgegevens worden in de browser verwerkt en kunnen lokaal op het toestel worden bewaard. Een download of export gebeurt alleen wanneer de gebruiker die zelf start. Toegang tot aangesloten hardware gebeurt alleen na toestemming in de browser. GitHub Pages registreert het IP-adres van bezoekers voor beveiligingsdoeleinden; externe diensten vallen onder het privacybeleid van hun aanbieder.</p>
+            <p class="card-copy"><a href="https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages#data-collection">Lees hoe GitHub Pages technische bezoekgegevens verwerkt.</a></p>
+          </div>
+        </details>
+        <details class="feature-card privacy-license-details">
+          <summary>Licentie</summary>
+          <div class="privacy-license-content">
+            <p class="card-copy">Het oorspronkelijke projectmateriaal van Robbe Wulgaert mag gratis worden gebruikt, gekopieerd en aangepast voor onderwijs, op voorwaarde dat “Robbe Wulgaert – AI in de Klas” duidelijk zichtbaar wordt vermeld, bij voorkeur met een link naar het oorspronkelijke project. Commerciële verkoop, betaalde verspreiding, sublicentiëring of herverpakking als commercieel product is niet toegestaan zonder voorafgaande schriftelijke toestemming. Componenten van derden blijven onder hun eigen licenties vallen.</p>
+            <p class="card-copy"><a href="LICENSE.md">Lees de volledige licentievoorwaarden.</a></p>
+          </div>
+        </details>
       </div>
     </section>
 
@@ -325,11 +344,12 @@
         <div class="footer-title">Project Wind</div>
         <p>
           Auteur: Robbe Wulgaert · AI in de Klas · robbewulgaert.be<br />
-          © 2026 Robbe Wulgaert. Alle rechten voorbehouden.
+          © 2026 Robbe Wulgaert. Educatief gebruik met naamsvermelding; geen commerciële verspreiding.
         </p>
       </div>
 
       <div class="footer-links" aria-label="Footerlinks">
+        <a href="#privacy-license">Privacy en licentie</a>
         <a href="https://www.robbewulgaert.be">robbewulgaert.be</a>
         <a href="https://www.aiindeklas.be">AI in de Klas</a>
         <a href="platform.html">Onderzoeksplatform</a>
@@ -381,6 +401,13 @@
 (() => {
   const LANGUAGE_KEY = "aiindeklas:index-language";
   const TRANSLATIONS = {
+  "Privacy en licentie": "Privacy and licence",
+  "Dit project gebruikt geen eigen analytics of advertentiecookies. Invoer, voortgang en meetgegevens worden in de browser verwerkt en kunnen lokaal op het toestel worden bewaard. Een download of export gebeurt alleen wanneer de gebruiker die zelf start. Toegang tot aangesloten hardware gebeurt alleen na toestemming in de browser. GitHub Pages registreert het IP-adres van bezoekers voor beveiligingsdoeleinden; externe diensten vallen onder het privacybeleid van hun aanbieder.": "This project does not use its own analytics or advertising cookies. Input, progress and measurement data are processed in the browser and may be stored locally on the device. A download or export occurs only when the user initiates it. Connected hardware is accessed only after permission is given in the browser. GitHub Pages logs visitors’ IP addresses for security purposes; external services are governed by their provider’s privacy policy.",
+  "Lees hoe GitHub Pages technische bezoekgegevens verwerkt.": "Read how GitHub Pages processes technical visitor data.",
+  "Educatief gebruik met naamsvermelding": "Educational use with attribution",
+  "Het oorspronkelijke projectmateriaal van Robbe Wulgaert mag gratis worden gebruikt, gekopieerd en aangepast voor onderwijs, op voorwaarde dat “Robbe Wulgaert – AI in de Klas” duidelijk zichtbaar wordt vermeld, bij voorkeur met een link naar het oorspronkelijke project. Commerciële verkoop, betaalde verspreiding, sublicentiëring of herverpakking als commercieel product is niet toegestaan zonder voorafgaande schriftelijke toestemming. Componenten van derden blijven onder hun eigen licenties vallen.": "Original project material by Robbe Wulgaert may be used, copied and adapted free of charge for education, provided that ‘Robbe Wulgaert – AI in de Klas’ is clearly displayed, preferably with a link to the original project. Commercial sale, paid distribution, sublicensing or repackaging as a commercial product is not permitted without prior written permission. Third-party components remain subject to their own licences.",
+  "Lees de volledige licentievoorwaarden.": "Read the full licence terms.",
+  "© 2026 Robbe Wulgaert. Educatief gebruik met naamsvermelding; geen commerciële verspreiding.": "© 2026 Robbe Wulgaert. Educational use with attribution; no commercial distribution.",
   "Spring naar inhoud": "Skip to content",
   "Spring naar hoofdinhoud": "Skip to main content",
   "Hoofdnavigatie": "Main navigation",
@@ -435,22 +462,19 @@
   "logica in echte code.": "logic in real code.",
   "webpagina's structureren.": "structuring webpages.",
   "Python in de Klas met opvolging.": "Python in the Classroom with tracking.",
-  "licht oefenen in de browser.": "lightweight practice in the browser.",
+  "Python oefenen in de browser.": "Practice Python in the browser.",
   "Arduino, bodemvochtigheid, kalibratie en data.": "Arduino, soil moisture, calibration and data.",
   "Arduino, sensoren, servo's en beweging.": "Arduino, sensors, servos and movement.",
   "Micro:bit, energie, spanning en stroom.": "Micro:bit, energy, voltage and current.",
   "AI, beeldherkenning, data en microcontrollers.": "AI, image recognition, data and microcontrollers.",
   "Arduino, luchtkwaliteit, data en postersessie.": "Arduino, air quality, data and poster session.",
   "De platformen trainen computationeel denken. De projecten laten leerlingen dat denken inzetten in een vakoverschrijdende opdracht.": "The platforms train computational thinking. The projects let students apply that thinking in a cross-curricular assignment.",
-  "Geen accounts, geen serveropslag.": "No accounts, no server storage.",
-  "Privacyvriendelijk": "Privacy-friendly",
   "Geen installatie of leerlingenaccount.": "No installation or student account.",
   "Lokale bibliotheken voor grafieken en PDF-export.": "Local libraries for charts and PDF export.",
   "Geschikt voor GitHub Pages.": "Suitable for GitHub Pages.",
   "robbewulgaert.be": "robbewulgaert.be",
   "AI in de Klas": "AI in de Klas",
   "Auteur: Robbe Wulgaert · AI in de Klas · robbewulgaert.be": "Author: Robbe Wulgaert · AI in de Klas · robbewulgaert.be",
-  "© 2026 Robbe Wulgaert. Alle rechten voorbehouden.": "© 2026 Robbe Wulgaert. All rights reserved.",
   "Auteur: Robbe Wulgaert · AI in de Klas · robbewulgaert.be · © 2026 Robbe Wulgaert.": "Author: Robbe Wulgaert · AI in de Klas · robbewulgaert.be · © 2026 Robbe Wulgaert.",
   "Robbe Wulgaert, AI in de Klas, robbewulgaert.be": "Robbe Wulgaert, AI in de Klas, robbewulgaert.be",
   "Licentie": "License",
@@ -490,7 +514,6 @@
   "Bruikbaar met echte hardware of als klassikale demo.": "Usable with real hardware or as a whole-class demo.",
   "PDF-export bundelt hypothese, proeven, grafiek, besluit en reflectie.": "PDF export bundles hypothesis, trials, graph, conclusion and reflection.",
   "Aanpasbaar door leerkrachten die vlot met bestanden en GitHub Pages werken.": "Adaptable by teachers comfortable with files and GitHub Pages.",
-  "De app draait lokaal in de browser. Meetgegevens blijven op het toestel en worden alleen geëxporteerd wanneer een leerling zelf een CSV of PDF downloadt.": "The app runs locally in the browser. Measurement data stays on the device and is only exported when a student downloads a CSV or PDF.",
   "Open het onderzoeksplatform.": "Open the research platform.",
   "Start de meting, test de demomodus of laat leerlingen hun proeven vergelijken en rapporteren.": "Start measuring, test the demo mode or let students compare and report their trials."
 };
